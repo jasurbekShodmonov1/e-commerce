@@ -1,6 +1,7 @@
 package com.example.e_commerce.service;
 
 import com.example.e_commerce.dto.request.ProductRequest;
+import com.example.e_commerce.dto.response.PageResponse;
 import com.example.e_commerce.dto.response.ProductResponse;
 import com.example.e_commerce.entity.Product;
 import com.example.e_commerce.exception.OrderNotFoundException;
@@ -9,6 +10,9 @@ import com.example.e_commerce.mapper.ProductMapper;
 import com.example.e_commerce.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,9 +26,17 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-    public List<ProductResponse> getAllProducts(){
-        List<Product> products = productRepository.findAll();
-        return products.stream().map(productMapper::toDto).toList();
+    public PageResponse<ProductResponse> getAllProducts(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Product> productPage  = productRepository.findAll(pageable);
+        return new PageResponse<>(
+                productPage.map(productMapper::toDto).getContent(),
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages()
+        );
     }
     public ProductResponse getProductById(Long id){
         Product product = productRepository.findById(id)

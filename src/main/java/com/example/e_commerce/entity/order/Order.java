@@ -1,5 +1,6 @@
-package com.example.e_commerce.entity;
+package com.example.e_commerce.entity.order;
 
+import com.example.e_commerce.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,10 @@ public class Order {
     private OrderStatus orderStatus;
 
     private BigDecimal totalAmount;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @OneToMany(mappedBy = "order",
     cascade = CascadeType.ALL,

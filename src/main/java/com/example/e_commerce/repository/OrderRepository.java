@@ -1,6 +1,6 @@
 package com.example.e_commerce.repository;
 
-import com.example.e_commerce.entity.Order;
+import com.example.e_commerce.entity.order.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,7 +24,7 @@ public interface OrderRepository extends JpaRepository<Order,Long>{
     join fetch oi.product
     where o.id = :id
 """)
-    Optional<Order> findByIdWithItems(Long id);
+    Optional<Order> findByIdWithItems(@Param("id") Long id);
 
     @Query("""
     select o from Order o

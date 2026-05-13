@@ -2,9 +2,8 @@ package com.example.e_commerce.mapper;
 
 import com.example.e_commerce.dto.request.ProductRequest;
 import com.example.e_commerce.dto.response.ProductResponse;
-import com.example.e_commerce.entity.Product;
+import com.example.e_commerce.entity.order.Product;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 

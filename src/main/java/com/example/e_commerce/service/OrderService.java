@@ -4,10 +4,11 @@ package com.example.e_commerce.service;
 import com.example.e_commerce.dto.request.CreateOrderRequest;
 import com.example.e_commerce.dto.request.OrderItemRequest;
 import com.example.e_commerce.dto.response.OrderResponse;
-import com.example.e_commerce.entity.Order;
-import com.example.e_commerce.entity.OrderItem;
-import com.example.e_commerce.entity.OrderStatus;
-import com.example.e_commerce.entity.Product;
+import com.example.e_commerce.entity.order.Order;
+import com.example.e_commerce.entity.order.OrderItem;
+import com.example.e_commerce.entity.order.OrderStatus;
+import com.example.e_commerce.entity.order.Product;
+import com.example.e_commerce.entity.user.User;
 import com.example.e_commerce.exception.InsufficientStockException;
 import com.example.e_commerce.exception.InvalidOrderStatusException;
 import com.example.e_commerce.exception.OrderNotFoundException;
@@ -15,7 +16,11 @@ import com.example.e_commerce.exception.ProductNotFoundException;
 import com.example.e_commerce.mapper.OrderMapper;
 import com.example.e_commerce.repository.OrderRepository;
 import com.example.e_commerce.repository.ProductRepository;
+import com.example.e_commerce.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +37,7 @@ public class OrderService {
 
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
     private final OrderMapper orderMapper;
 
     public List<OrderResponse> getAll(){
@@ -52,6 +58,13 @@ public class OrderService {
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public OrderResponse createOrder(CreateOrderRequest createOrderRequest){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         log.info("Creating order for customer: {}",
                 createOrderRequest.customerName());
         Order order = new Order();
@@ -59,6 +72,7 @@ public class OrderService {
         order.setCustomerName(createOrderRequest.customerName());
         order.setCustomerEmail(createOrderRequest.customerEmail());
         order.setOrderDate(LocalDateTime.now());
+        order.setUser(user);
         order.setOrderStatus(OrderStatus.PENDING);
         List<OrderItem> orderItems = new ArrayList<>();
 

@@ -1,6 +1,6 @@
 package com.example.e_commerce.dto.response;
 
-import com.example.e_commerce.entity.OrderStatus;
+import com.example.e_commerce.entity.order.OrderStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 

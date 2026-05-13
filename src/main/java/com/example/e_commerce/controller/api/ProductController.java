@@ -1,4 +1,4 @@
-package com.example.e_commerce.controller;
+package com.example.e_commerce.controller.api;
 
 import com.example.e_commerce.dto.request.ProductRequest;
 import com.example.e_commerce.dto.response.PageResponse;
@@ -6,12 +6,10 @@ import com.example.e_commerce.dto.response.ProductResponse;
 import com.example.e_commerce.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")

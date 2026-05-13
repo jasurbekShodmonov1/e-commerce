@@ -1,16 +1,15 @@
-package com.example.e_commerce.controller;
+package com.example.e_commerce.controller.api;
 
 
 import com.example.e_commerce.dto.request.CreateOrderRequest;
 import com.example.e_commerce.dto.response.OrderResponse;
-import com.example.e_commerce.entity.OrderStatus;
+import com.example.e_commerce.entity.order.OrderStatus;
 import com.example.e_commerce.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/order")

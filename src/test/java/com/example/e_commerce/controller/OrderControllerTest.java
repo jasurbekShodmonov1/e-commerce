@@ -6,7 +6,6 @@ import com.example.e_commerce.dto.request.CreateOrderRequest;
 import com.example.e_commerce.dto.request.OrderItemRequest;
 import com.example.e_commerce.entity.order.OrderStatus;
 import com.example.e_commerce.entity.order.Product;
-import com.example.e_commerce.entity.user.UserRoles;
 import com.example.e_commerce.repository.OrderRepository;
 import com.example.e_commerce.repository.ProductRepository;
 import io.restassured.http.ContentType;
@@ -61,7 +60,7 @@ public class OrderControllerTest extends ECommerceApplicationTests {
 	}
 
 	@Test
-	void getAll_ShouldWorkForPublic(){
+	void getAll_ShouldNotWorkForPublic(){
 		given(publicSpecification)
 				.accept(ContentType.JSON)
 				.when()
@@ -164,7 +163,7 @@ public class OrderControllerTest extends ECommerceApplicationTests {
 	}
 
 	@Test
-	void updateStatus_ShouldWorkForPublic(){
+	void updateStatus_ShouldNotWorkForPublic(){
 		Long savedOrderId = createOrder(userSpecification);
 
 		given(publicSpecification)
@@ -208,6 +207,73 @@ public class OrderControllerTest extends ECommerceApplicationTests {
 				.body("id", equalTo(savedOrderId.intValue()))
 				.body("status", equalTo(String.valueOf(OrderStatus.SHIPPED)));
 	}
+
+	@Test
+	void delete_ShouldNotWorkForPublic(){
+		Long savedOrderId = createOrder(userSpecification);
+
+		given(publicSpecification)
+				.contentType(ContentType.JSON)
+				.when()
+				.delete("/api/order/{orderId}", savedOrderId)
+				.then()
+				.statusCode(HttpStatus.UNAUTHORIZED.value());
+	}
+
+	@Test
+	void delete_ShouldWorkForAuthenticatedUser(){
+		Long savedOrderId = createOrder(userSpecification);
+
+		given(userSpecification)
+				.contentType(ContentType.JSON)
+				.when()
+				.delete("/api/order/{orderId}", savedOrderId)
+				.then()
+				.statusCode(HttpStatus.OK.value());
+	}
+
+	@Test
+	void delete_ShouldWorkForAuthenticatedAdmin() {
+		Long savedOrderId = createOrder(adminSpecification);
+
+		given(adminSpecification)
+				.contentType(ContentType.JSON)
+				.when()
+				.delete("/api/order/{orderId}", savedOrderId)
+				.then()
+				.statusCode(HttpStatus.OK.value());
+	}
+
+	@Test
+	void getByCustomerEmail_ShouldNotWorkForPublic(){
+		given(publicSpecification)
+				.contentType(ContentType.JSON)
+				.when()
+				.get("/api/order/customer/{email}", customerEmail)
+				.then()
+				.statusCode(HttpStatus.UNAUTHORIZED.value());
+	}
+
+	@Test
+	void getByCustomerEmail_ShouldWorkForAuthenticatedUser(){
+		given(userSpecification)
+				.contentType(ContentType.JSON)
+				.when()
+				.get("/api/order/customer/{email}", customerEmail)
+				.then()
+				.statusCode(HttpStatus.OK.value());
+	}
+
+	@Test
+	void getByCustomerEmail_ShouldWorkForAuthenticatedAdmin() {
+		given(adminSpecification)
+				.contentType(ContentType.JSON)
+				.when()
+				.get("/api/order/customer/{email}", customerEmail)
+				.then()
+				.statusCode(HttpStatus.OK.value());
+	}
+
 
 	private CreateOrderRequest createOrderRequest() {
 		return new CreateOrderRequest(

@@ -13,6 +13,15 @@ spring:
     show-sql: true
     open-in-view: false
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+
 springdoc:
   swagger-ui:
     path:/swagger-ui.html

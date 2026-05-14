@@ -45,14 +45,16 @@ public class SecurityConfig {
     };
 
 
-    private static final String[] USER_URLS = {
-            "/api/orders/v1/**",
-            "/api/cart/v1/**"
-    };
+//    private static final String[] USER_URLS = {
+//            "/api/orders/v1/**",
+//            "/api/cart/v1/**"
+//    };
 
 
     private static final String[] ADMIN_URLS = {
-
+            "/api/users/createAdmin",
+            "/api/users",
+            "/api/users/{userId}"
     };
 
 
@@ -68,6 +70,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
+                        .requestMatchers(ADMIN_URLS).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 

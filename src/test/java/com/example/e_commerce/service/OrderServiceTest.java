@@ -9,6 +9,7 @@ import com.example.e_commerce.entity.order.Order;
 import com.example.e_commerce.entity.order.OrderItem;
 import com.example.e_commerce.entity.order.OrderStatus;
 import com.example.e_commerce.entity.order.Product;
+import com.example.e_commerce.entity.user.User;
 import com.example.e_commerce.exception.InsufficientStockException;
 import com.example.e_commerce.exception.InvalidOrderStatusException;
 import com.example.e_commerce.exception.OrderNotFoundException;
@@ -16,12 +17,16 @@ import com.example.e_commerce.exception.ProductNotFoundException;
 import com.example.e_commerce.mapper.OrderMapper;
 import com.example.e_commerce.repository.OrderRepository;
 import com.example.e_commerce.repository.ProductRepository;
+import com.example.e_commerce.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -43,12 +48,16 @@ public class OrderServiceTest {
     @Mock
     private OrderMapper orderMapper;
 
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private OrderService orderService;
 
     private final Long id = 5L;
     private final String customerName = "Bred";
     private final String customerEmail = "bred@pit";
+    private final String username = "bred";
     private final LocalDateTime orderDate = LocalDateTime.now();
     private final OrderStatus status = OrderStatus.PENDING;
     private final BigDecimal totalAmount = BigDecimal.valueOf(90);
@@ -62,6 +71,7 @@ public class OrderServiceTest {
     private Order order;
     private OrderItem orderItem;
     private Product product;
+    private User user;
     private OrderItemRequest orderItemRequest = new OrderItemRequest(
             productId,
             quantity
@@ -103,10 +113,22 @@ public class OrderServiceTest {
         product.setName(productName);
         product.setStock(7);
 
+        user = new User();
+        user.setUsername(username);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(username, null)
+        );
+
         orderItem = new OrderItem();
         orderItem.setOrder(order);
         orderItem.setProduct(product);
         orderItem.setQuantity(quantity);
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -148,6 +170,7 @@ public class OrderServiceTest {
     void createOrder_ShouldWork(){
         OrderResponse expect = response;
 
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(orderRepository.save(any(Order.class)))
                 .thenReturn(order);
@@ -160,6 +183,7 @@ public class OrderServiceTest {
 
     @Test
     void createOrder_ShouldThrowProductNotFound(){
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(productRepository.findById(productId)).thenReturn(Optional.empty());
 
         assertThrows(
@@ -174,6 +198,7 @@ public class OrderServiceTest {
     @Test
     void createOrder_ShouldThrowInsufficientNotFoundWhenStockNull(){
         product.setStock(0);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         assertThrows(
@@ -188,6 +213,7 @@ public class OrderServiceTest {
     @Test
     void createOrder_ShouldThrowInsufficientNotFound(){
         product.setStock(3);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         assertThrows(
@@ -211,6 +237,7 @@ public class OrderServiceTest {
                 customerEmail,
                 List.of(orderItemRequest,itemRequest)
         );
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         assertThrows(

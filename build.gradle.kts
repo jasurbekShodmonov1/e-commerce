@@ -42,6 +42,18 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-api:0.12.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+
+	testImplementation("org.springframework.security:spring-security-test")
+
+	// 1. RestAssured
+	testImplementation("io.rest-assured:rest-assured:6.0.0")
+
+	// 2. Testcontainers
+	testImplementation("org.testcontainers:postgresql:1.19.0")
+	testImplementation("org.testcontainers:junit-jupiter:1.19.0")
+
+	// 3. RestDocs
+	testImplementation("org.springframework.restdocs:spring-restdocs-restassured:3.0.0")
 }
 
 

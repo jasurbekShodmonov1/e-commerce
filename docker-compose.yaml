@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: postgres-db
+    environment:
+      - POSTGRES_DB=ecommerce_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=jasur1803
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-network
+
+
+  app:
+    build: .
+    container_name: spring-app
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/ecommerce_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=jasur1803
+
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - "8080:8080"
+    networks:
+      - ecommerce-network
+    restart: on-failure
+
+
+volumes:
+  pg_data:
+
+
+networks:
+  ecommerce-network:
+    driver: bridge

@@ -3,11 +3,13 @@ package com.example.e_commerce.utils;
 import com.example.e_commerce.entity.user.User;
 import com.example.e_commerce.entity.user.UserRoles;
 import com.example.e_commerce.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@Slf4j
 @Configuration
 public class DbPopulator {
 
@@ -24,9 +26,9 @@ public class DbPopulator {
                 admin.setRole(UserRoles.ADMIN);
 
                 userRepository.save(admin);
-                System.out.println("LOG: Admin user has been initialized in the database.");
+                log.info(" Admin user has been initialized in the database.");
             } else {
-                System.out.println("LOG: Admin user already exists. Skipping initialization.");
+                log.info("LOG: Admin user already exists. Skipping initialization.");
             }
         };
     }

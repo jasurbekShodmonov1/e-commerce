@@ -10,6 +10,7 @@ Spring Boot asosida yozilgan e-commerce backend API. Loyihada user, product va o
 - Spring Data JPA
 - Spring Security + JWT
 - PostgreSQL
+- Redis
 - H2 database for tests
 - MapStruct
 - Lombok
@@ -33,14 +34,30 @@ spring:
 ```yaml
 url: jdbc:postgresql://localhost:5432/e-commerce
 username: postgres
-password: jasur1803
+password: <your-password>
 ```
 
-Shuning uchun appni run qilishdan oldin PostgreSQL ishlayotgan bo'lishi va `e-commerce` database yaratilgan bo'lishi kerak.
+Shuning uchun appni run qilishdan oldin PostgreSQL va Redis ishlayotgan bo'lishi, `e-commerce` database yaratilgan bo'lishi kerak.
 
 ```sql
 CREATE DATABASE "e-commerce";
 ```
+
+Redis refresh tokenlarni saqlash uchun ishlatiladi. Local run qilganda Redis `localhost:6379`da ishlashi kerak.
+
+Docker orqali faqat Redisni ishga tushirish:
+
+```powershell
+docker compose up -d redis
+```
+
+Redis ishlayotganini tekshirish:
+
+```powershell
+docker exec -it redis-cache redis-cli ping
+```
+
+Javob `PONG` bo'lsa, Redis tayyor.
 
 Run qilish:
 
@@ -63,6 +80,28 @@ App default port:
 http://localhost:8080
 ```
 
+## Docker
+
+Docker Compose PostgreSQL, Redis va Spring Boot appni ko'taradi:
+
+```powershell
+docker compose up -d --build
+```
+
+Kod o'zgargandan keyin Docker ichida yangi endpointlar ko'rinishi uchun avval jar build qilish kerak:
+
+```powershell
+.\gradlew.bat bootJar
+docker compose up -d --build
+```
+
+Redisdagi refresh tokenlarni ko'rish:
+
+```powershell
+docker exec -it redis-cache redis-cli KEYS *
+docker exec -it redis-cache redis-cli TTL refresh:user:admin
+```
+
 ## Testlar
 
 Testlar `test` profil bilan H2 in-memory database ishlatadi. Shuning uchun testlar asosiy PostgreSQL bazaga ta'sir qilmaydi.
@@ -81,6 +120,13 @@ Toza test run:
 
 ## Authentication
 
+Auth flow access token va refresh token bilan ishlaydi:
+
+- `accessToken` qisqa muddatli token. Protected endpointlarga shu token yuboriladi.
+- `refreshToken` uzunroq muddatli token. Access token muddati tugaganda yangi token olish uchun ishlatiladi.
+- Refresh token Redisda `refresh:user:{username}` key bilan saqlanadi.
+- Logout qilinganda Redisdagi refresh token o'chiriladi.
+
 Login endpoint:
 
 ```http
@@ -93,7 +139,7 @@ Body:
 ```json
 {
   "username": "admin",
-  "password": "admin123"
+  "password": "<password>"
 }
 ```
 
@@ -101,7 +147,8 @@ Response:
 
 ```json
 {
-  "token": "...",
+  "accessToken": "...",
+  "refreshToken": "...",
   "username": "admin",
   "role": "ADMIN"
 }
@@ -110,8 +157,49 @@ Response:
 Protected endpointlarga request yuborishda token headerga qo'yiladi:
 
 ```http
-Authorization: Bearer <token>
+Authorization: Bearer <accessToken>
 ```
+
+Access token muddati tugasa, refresh token orqali yangi token olinadi:
+
+```http
+POST /api/auth/refresh
+Content-Type: application/json
+```
+
+Body:
+
+```json
+{
+  "refreshToken": "..."
+}
+```
+
+Response:
+
+```json
+{
+  "accessToken": "...",
+  "refreshToken": "..."
+}
+```
+
+Logout:
+
+```http
+POST /api/auth/logout
+Content-Type: application/json
+```
+
+Body:
+
+```json
+{
+  "refreshToken": "..."
+}
+```
+
+Logoutdan keyin Redisdagi refresh token o'chadi va u token bilan `/api/auth/refresh` ishlamaydi.
 
 ## Default Admin
 
@@ -119,7 +207,7 @@ App start bo'lganda `DbPopulator` orqali admin user yaratiladi:
 
 ```text
 username: admin
-password: admin123
+password: application konfiguratsiyasidan yoki lokal sozlamadan olinadi
 role: ADMIN
 ```
 
@@ -130,6 +218,8 @@ Agar admin oldin mavjud bo'lsa qayta yaratilmaydi.
 Public endpointlar:
 
 - `POST /api/auth/login`
+- `POST /api/auth/refresh`
+- `POST /api/auth/logout`
 - `POST /api/users/register`
 - Swagger endpointlari
 - `GET /actuator/health`
@@ -359,6 +449,43 @@ Connection to localhost:5432 refused
 ```
 
 PostgreSQLni ishga tushiring yoki datasource URLni to'g'rilang.
+
+### Login yoki refresh vaqtida Redis connection refused
+
+Sabab: Redis ishlamayapti yoki app noto'g'ri host/portga ulanmoqda.
+
+Local run uchun Redis `localhost:6379`da bo'lishi kerak:
+
+```powershell
+docker compose up -d redis
+```
+
+Tekshirish:
+
+```powershell
+docker exec -it redis-cache redis-cli ping
+```
+
+Docker ichida app Redisga service nomi orqali ulanadi:
+
+```yaml
+SPRING_DATA_REDIS_HOST=redis
+SPRING_DATA_REDIS_PORT=6379
+```
+
+### Refresh token Redisga yozilganini qanday tekshiraman?
+
+Login qilingandan keyin:
+
+```powershell
+docker exec -it redis-cache redis-cli KEYS *
+```
+
+TTL ko'rish:
+
+```powershell
+docker exec -it redis-cache redis-cli TTL refresh:user:admin
+```
 
 ### Testlar asosiy bazaga ta'sir qiladimi?
 

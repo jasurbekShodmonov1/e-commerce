@@ -2,13 +2,12 @@ package com.example.e_commerce.controller.auth;
 
 
 import com.example.e_commerce.dto.auth.request.LoginRequest;
+import com.example.e_commerce.dto.auth.request.RefreshTokenRequest;
 import com.example.e_commerce.dto.auth.response.LoginResponse;
-import com.example.e_commerce.repository.UserRepository;
+import com.example.e_commerce.dto.auth.response.TokenResponse;
 import com.example.e_commerce.service.auth.AuthService;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,6 +22,15 @@ public class AuthController {
         return authService.login(loginRequest);
     }
 
+    @PostMapping("/refresh")
+    public TokenResponse refresh(@RequestBody RefreshTokenRequest request) {
+        return authService.refresh(request.refreshToken());
+    }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody RefreshTokenRequest request) {
+        authService.logout(request.refreshToken());
+        return ResponseEntity.noContent().build();
+    }
 
 }

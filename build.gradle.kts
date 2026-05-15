@@ -26,6 +26,7 @@ dependencies {
 	implementation("org.springframework.security:spring-security-oauth2-jose:6.4.4")
 	implementation("com.nimbusds:nimbus-jose-jwt:9.40")
 	implementation ("org.springframework.boot:spring-boot-starter-validation")
+	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")

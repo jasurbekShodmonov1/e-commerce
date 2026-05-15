@@ -17,11 +17,21 @@ services:
       - ecommerce-network
 
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - ecommerce-network
+
   app:
     build: .
     container_name: spring-app
     depends_on:
       - postgres
+      - redis
     environment:
       - SPRING_PROFILES_ACTIVE=docker
 
@@ -29,6 +39,9 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=jasur1803
 
+      # Redis sozlamalari (Ilova Redisga ulanishi uchun)
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     ports:
       - "8080:8080"

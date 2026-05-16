@@ -18,7 +18,13 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.time.LocalDateTime;
 
@@ -30,8 +36,24 @@ import static org.springframework.restdocs.restassured.RestAssuredRestDocumentat
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @ActiveProfiles("test")
+//@Testcontainers
 public class ECommerceApplicationTests {
 
+	private static final GenericContainer<?> REDIS_CONTAINER;
+
+	// 1. Statik blok ichida konteynerni darhol start qilamiz
+	static {
+		REDIS_CONTAINER = new GenericContainer<>(DockerImageName.parse("redis:7.2-alpine"))
+				.withExposedPorts(6379);
+		REDIS_CONTAINER.start();
+	}
+
+	// 2. Endi konteyner aniq ishga tushgan, portni xavfsiz olish mumkin
+	@DynamicPropertySource
+	static void configureRedisProperties(DynamicPropertyRegistry registry) {
+		registry.add("spring.data.redis.host", REDIS_CONTAINER::getHost);
+		registry.add("spring.data.redis.port", REDIS_CONTAINER::getFirstMappedPort);
+	}
 	protected static final String TEST_USER_USERNAME = "user";
 	protected static final String TEST_USER_PASSWORD = "user123";
 
@@ -99,7 +121,7 @@ public class ECommerceApplicationTests {
 				.when()
 				.post("/api/auth/login")
 				.then()
-				.extract().path("token");
+				.extract().path("accessToken");
 	}
 
 	private void createUserIfAbsent(String username, String password, UserRoles role) {

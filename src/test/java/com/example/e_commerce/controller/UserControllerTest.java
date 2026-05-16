@@ -45,6 +45,16 @@ public class UserControllerTest extends ECommerceApplicationTests {
 				.when()
 				.get("/api/users")
 				.then()
+				.statusCode(HttpStatus.FORBIDDEN.value());
+	}
+
+	@Test
+	void getAllUsers_ShouldWorkForAuthenticatedAdmin() {
+		given(adminSpecification)
+				.accept(ContentType.JSON)
+				.when()
+				.get("/api/users")
+				.then()
 				.statusCode(HttpStatus.OK.value());
 	}
 
@@ -72,6 +82,17 @@ public class UserControllerTest extends ECommerceApplicationTests {
 				.when()
 				.get("/api/users/{userId}", savedUserId)
 				.then()
+				.statusCode(HttpStatus.FORBIDDEN.value());
+	}
+	@Test
+	void getByUserId_ShouldWorkForAuthenticatedAdmin() {
+		Long savedUserId = registerUser();
+
+		given(adminSpecification)
+				.accept(ContentType.JSON)
+				.when()
+				.get("/api/users/{userId}", savedUserId)
+				.then()
 				.statusCode(HttpStatus.OK.value())
 				.body("userId", equalTo(savedUserId.intValue()))
 				.body("fullName", equalTo(fullName))
@@ -92,6 +113,17 @@ public class UserControllerTest extends ECommerceApplicationTests {
 	@Test
 	void createAdmin_ShouldWorkForAuthenticatedUser() {
 		given(userSpecification)
+				.contentType(ContentType.JSON)
+				.body(userRequest())
+				.when()
+				.post("/api/users/createAdmin")
+				.then()
+				.statusCode(HttpStatus.FORBIDDEN.value());
+	}
+
+	@Test
+	void createAdmin_ShouldWorkForAuthenticatedAdmin() {
+		given(adminSpecification)
 				.contentType(ContentType.JSON)
 				.body(userRequest())
 				.when()

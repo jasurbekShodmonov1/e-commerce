@@ -57,7 +57,6 @@ public class DbPopulatorTest {
 
 
         verify(userRepository, never()).save(any(User.class));
-        
         verify(passwordEncoder, never()).encode(anyString());
     }
 

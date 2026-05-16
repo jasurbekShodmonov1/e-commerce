@@ -27,6 +27,8 @@ dependencies {
 	implementation("com.nimbusds:nimbus-jose-jwt:9.40")
 	implementation ("org.springframework.boot:spring-boot-starter-validation")
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation ("org.flywaydb:flyway-core")
+	implementation ("org.flywaydb:flyway-database-postgresql")
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")

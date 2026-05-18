@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Configuration
 public class DbPopulator {
@@ -24,6 +26,7 @@ public class DbPopulator {
 
                 admin.setPassword(passwordEncoder.encode("admin123"));
                 admin.setRole(UserRoles.ADMIN);
+                admin.setCreatedAt(LocalDateTime.now());
 
                 userRepository.save(admin);
                 log.info(" Admin user has been initialized in the database.");

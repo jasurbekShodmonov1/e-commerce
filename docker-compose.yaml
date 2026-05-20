@@ -1,74 +1,47 @@
-services:
+version: '3.8'
 
+services:
   postgres:
-    image: postgres:16
-    container_name: postgres-db
+    image: postgres:16-alpine
+    container_name: postgres
     environment:
-      - POSTGRES_DB=ecommerce_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=jasur1803
+      POSTGRES_DB: e-commerce
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: jasur1803
     ports:
       - "5432:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d e-commerce"]
       interval: 5s
       timeout: 5s
-      retries: 10
-    networks:
-      - ecommerce-network
-
+      retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: redis-cache
+    container_name: redis
     ports:
       - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    restart: always
-    networks:
-      - ecommerce-network
 
-  app:
+  spring-app:
     build: .
     container_name: spring-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/e-commerce
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=jasur1803
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - SPRING_FLYWAY_ENABLED=true
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
     depends_on:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_healthy
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/ecommerce_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=jasur1803
-
-      # Redis sozlamalari (Ilova Redisga ulanishi uchun)
-      - SPRING_DATA_REDIS_HOST=redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
-
-
-      # FLYWAY SOZLAMALARI (Shu yerda yoqiladi va log yoziladi)
-      - SPRING_FLYWAY_ENABLED=true
-      - SPRING_FLYWAY_BASELINE_ON_MIGRATE=false
-    ports:
-      - "8080:8080"
-    networks:
-      - ecommerce-network
-    restart: on-failure
-
+        condition: service_started
 
 volumes:
-  pg_data:
-
-
-networks:
-  ecommerce-network:
-    driver: bridge
+  postgres_data:

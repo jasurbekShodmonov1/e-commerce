@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket E-commerce Test</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- SockJS va STOMP kutubxonalari -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        /* Kelgan xabarlar chiroyli animatsiya bilan paydo bo'lishi uchun */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex items-center justify-center p-4">
+
+<div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+    <!-- Header qismi -->
+    <div class="p-6 bg-gradient-to-r from-indigo-600 to-violet-600 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-xl font-bold tracking-tight">E-commerce Live Monitor</h2>
+            <p class="text-indigo-100 text-sm mt-1">Real-time buyurtmalar oqimi</p>
+        </div>
+        <div class="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md self-start sm:self-center">
+            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-200">User ID:</span>
+            <span class="bg-white text-indigo-600 font-bold px-2.5 py-0.5 rounded-md text-sm shadow-sm">2</span>
+        </div>
+    </div>
+
+    <!-- Status paneli -->
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+        <span class="text-sm font-medium text-slate-500">Ulanish holati:</span>
+        <div id="status-container" class="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-sm font-semibold transition-colors duration-300">
+            <!-- Ping/Pulse nuqtasi -->
+            <span id="status-ping" class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span id="status-dot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                </span>
+            <span id="status">Ulanmoqda...</span>
+        </div>
+    </div>
+
+    <!-- Bildirishnomalar ro'yxati -->
+    <div class="p-6">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Kelgan bildirishnomalar</h3>
+
+        <!-- Bo'sh holat (Xabar kelguncha ko'rinib turadi) -->
+        <div id="empty-state" class="text-center py-12 border-2 border-dashed border-slate-200 rounded-xl">
+            <p class="text-slate-400 text-sm">Hozircha hech qanday bildirishnoma yo'q.<br>Tizim yangi xabarlarni tinglamoqda...</p>
+        </div>
+
+        <ul id="notifications" class="space-y-3 max-h-[400px] overflow-y-auto pr-2 hidden">
+            <!-- Xabarlar shu yerga tushadi -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    const userId = 2;
+    const socket = new SockJS('http://localhost:8080/ws-ecommerce');
+    const stompClient = Stomp.over(socket);
+
+    // Konsoldagi ortiqcha loglarni yopish
+    stompClient.debug = null;
+
+    // Statusni vizual o'zgartiruvchi yordamchi funksiya
+    function updateStatus(text, type) {
+        const statusText = document.getElementById('status');
+        const container = document.getElementById('status-container');
+        const dot = document.getElementById('status-dot');
+        const ping = document.querySelector('.animate-ping');
+
+        statusText.innerText = text;
+
+        if (type === 'success') {
+            container.className = "flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-sm font-semibold transition-colors";
+            dot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
+            if(ping) ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+        } else if (type === 'error') {
+            container.className = "flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-sm font-semibold transition-colors";
+            dot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
+            if(ping) ping.className = "hidden"; // Xatolikda pulsatsiyani o'chiramiz
+        }
+    }
+
+    // Status ranglariga qarab Badge yaratish funksiyasi
+    function getStatusBadge(status) {
+        const s = status ? status.toLowerCase() : '';
+        let baseClass = "text-xs font-bold px-2.5 py-1 rounded-md uppercase tracking-wide shadow-xs ";
+
+        if (s.includes('new') || s.includes('kutilmoqda') || s.includes('pending')) {
+            return `<span class="${baseClass} bg-blue-50 text-blue-700 border border-blue-200">Kutilmoqda</span>`;
+        } else if (s.includes('progress') || s.includes('tayyorlanmoqda') || s.includes('processing')) {
+            return `<span class="${baseClass} bg-amber-50 text-amber-700 border border-amber-200">Jarayonda</span>`;
+        } else if (s.includes('done') || s.includes('etkazildi') || s.includes('completed') || s.includes('success')) {
+            return `<span class="${baseClass} bg-emerald-50 text-emerald-700 border border-emerald-200">Yuborildi</span>`;
+        } else if (s.includes('cancel') || s.includes('bekor') || s.includes('failed')) {
+            return `<span class="${baseClass} bg-rose-50 text-rose-700 border border-rose-200">Bekor qilindi</span>`;
+        }
+
+        // Standart holat (agar mos kelmasa)
+        return `<span class="${baseClass} bg-slate-100 text-slate-700 border border-slate-200">${status}</span>`;
+    }
+
+    stompClient.connect({}, function (frame) {
+        updateStatus("Ulandi! Xabarlar kutilmoqda...", "success");
+
+        stompClient.subscribe('/topic/orders/' + userId, function (response) {
+            try {
+                const message = JSON.parse(response.body);
+                console.log("Xabar keldi:", message);
+
+                // Bo'sh holat rasmini yashiramiz va ro'yxatni ochamiz
+                document.getElementById('empty-state').classList.add('hidden');
+                const container = document.getElementById('notifications');
+                container.classList.remove('hidden');
+
+                // Chiroyli xabar qutisi (Row) yaratish
+                const li = document.createElement('li');
+                li.className = "animate-slide-in flex items-center justify-between p-4 bg-white border border-slate-100 rounded-xl shadow-xs hover:shadow-md transition-shadow duration-200";
+
+                const orderId = message.orderId || message.id || 'Noma\'lum';
+                const orderStatus = message.status || message.orderStatus || 'Noma\'lum';
+
+                li.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-700 text-sm sm:text-base">Buyurtma <span class="text-indigo-600">#${orderId}</span></p>
+                            <p class="text-xs text-slate-400">Hozirgina yangilandi</p>
+                        </div>
+                    </div>
+                    <div>
+                        ${getStatusBadge(orderStatus)}
+                    </div>
+                `;
+
+                container.insertBefore(li, container.firstChild);
+            } catch (error) {
+                console.error("JSON parse xatolik:", error);
+            }
+        });
+    }, function (error) {
+        updateStatus("Ulanishda xatolik yuz berdi", "error");
+    });
+</script>
+</body>
+</html>

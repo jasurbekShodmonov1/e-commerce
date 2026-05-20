@@ -16,7 +16,12 @@ import java.util.List;
 @Setter
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orders_seq_gen")
+    @SequenceGenerator(
+            name = "orders_seq_gen",
+            sequenceName = "orders_seq",
+            allocationSize = 50
+    )
     private Long id;
     private String customerName;
     private String customerEmail;

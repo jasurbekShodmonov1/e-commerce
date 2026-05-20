@@ -13,7 +13,8 @@ import java.math.BigDecimal;
 public class OrderItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_items_seq_gen")
+    @SequenceGenerator(name = "order_items_seq_gen", sequenceName = "order_items_seq", allocationSize = 50)
     private Long id;
 
     @ManyToOne

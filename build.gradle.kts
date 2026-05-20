@@ -27,10 +27,12 @@ dependencies {
 	implementation("com.nimbusds:nimbus-jose-jwt:9.40")
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")
-//	implementation("org.springframework.boot:spring-boot-flyway")
+	implementation ("org.springframework.boot:spring-boot-starter-websocket")
+	implementation("org.springframework.boot:spring-boot-flyway")
 	implementation ("org.springframework.boot:spring-boot-starter-validation")
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
 	compileOnly("org.projectlombok:lombok")
+	implementation ("com.fasterxml.jackson.core:jackson-databind")
 	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
@@ -56,6 +58,7 @@ dependencies {
 	// 2. Testcontainers
 	testImplementation("org.testcontainers:postgresql:1.19.0")
 	testImplementation("org.testcontainers:junit-jupiter:1.19.0")
+
 
 	// 3. RestDocs
 	testImplementation("org.springframework.restdocs:spring-restdocs-restassured:3.0.0")

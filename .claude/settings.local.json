@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew compileJava)",
+      "Bash(export JAVA_HOME=\"C:/Users/Jasurbek/.jdks/corretto-21.0.6\")",
+      "Bash(export PATH=\"$JAVA_HOME/bin:$PATH\")",
+      "Bash(./gradlew compileJava -Xlint:all)",
+      "Bash(netstat -ano)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,State,OwningProcess\")",
+      "Bash(curl -v http://localhost:8080/actuator/health)",
+      "Bash(timeout 60 ./gradlew bootRun --no-daemon)",
+      "Bash(where java *)",
+      "Read(//c/Program Files/Java/**)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files/Microsoft/**)",
+      "Bash(export JAVA_HOME=\"C:/Program Files/Java/jdk-23\")"
+    ]
+  }
+}

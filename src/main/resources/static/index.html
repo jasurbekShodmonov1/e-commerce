@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket E-commerce Test</title>
+    <!-- SockJS va STOMP kutubxonalari -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #notifications { list-style-type: none; padding: 0; }
+        #notifications li { padding: 10px; margin-bottom: 5px; background: #f4f4f9; border-radius: 4px; border-left: 5px solid #2196F3; }
+        .status-badge { padding: 3px 8px; border-radius: 3px; font-weight: bold; color: white; background-color: #e53935; }
+    </style>
+</head>
+<body>
+<h2>WebSocket Real-time Status Test</h2>
+<div>Ulanish holati: <span id="status" style="color: blue; font-weight: bold;">Ulanmoqda...</span></div>
+
+<h3>Kelgan bildirishnomalar (User ID: 77):</h3>
+<ul id="notifications"></ul>
+
+<script>
+    // Test qilinayotgan foydalanuvchi ID si
+    const userId = 77;
+
+    // Docker'da tashqariga 8080 port ochilgani uchun localhost orqali bog'lanamiz
+    const socket = new SockJS('http://localhost:8080/ws-ecommerce');
+    const stompClient = Stomp.over(socket);
+
+    // Konsolda keraksiz debug loglarni kamaytirish uchun (ixtiyoriy)
+    // stompClient.debug = null;
+
+    stompClient.connect({}, function (frame) {
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerText = "Ulandi! Xabarlar kutilmoqda...";
+        statusDiv.style.color = "green";
+        console.log('STOMP ulanishi muvaffaqiyatli: ' + frame);
+
+        // Diqqat: Agarda Spring Security yoqilgan bo'lsa, /topic/ yoki /queue/ prefikslariga ruxsat berilgan bo'lishi kerak.
+        // Quyidagi manzil backend'dagi WebSocket broker sozlamasiga (SimpleBroker) mos kelishi shart.
+        stompClient.subscribe('/topic/orders/' + userId, function (response) {
+            try {
+                const message = JSON.parse(response.body);
+                console.log("Redis Pub/Sub -> WebSocket orqali kelgan xabar:", message);
+
+                // Ekranga chiqarish (Xabarni chiroyli formatda ko'rsatish)
+                const li = document.createElement('li');
+                li.innerHTML = `Buyurtma <b>#${message.orderId || message.id}</b> statusi o'zgardi: <span class="status-badge">${message.status || message.orderStatus}</span>`;
+
+                // Oxirgi kelgan xabarni ro'yxatning eng tepasiga qo'yamiz
+                const container = document.getElementById('notifications');
+                container.insertBefore(li, container.firstChild);
+            } catch (error) {
+                console.error("Xabarni o'qishda (JSON parse) xatolik:", error);
+            }
+        });
+    }, function (error) {
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerText = "Ulanishda xatolik yuz berdi: " + error;
+        statusDiv.style.color = "red";
+    });
+</script>
+</body>
+</html>

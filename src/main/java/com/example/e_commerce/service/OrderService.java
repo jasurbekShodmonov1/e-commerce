@@ -1,6 +1,7 @@
 package com.example.e_commerce.service;
 
 
+import com.example.e_commerce.dto.event.OrderStatusChangedEvent;
 import com.example.e_commerce.dto.request.CreateOrderRequest;
 import com.example.e_commerce.dto.request.OrderItemRequest;
 import com.example.e_commerce.dto.response.OrderResponse;
@@ -18,6 +19,7 @@ import com.example.e_commerce.repository.OrderRepository;
 import com.example.e_commerce.repository.ProductRepository;
 import com.example.e_commerce.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -39,6 +41,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final OrderMapper orderMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public List<OrderResponse> getAll(){
         List<Order> orders = orderRepository.findAllWithItems();
@@ -180,6 +183,12 @@ public class OrderService {
         order.setOrderStatus(status);
         orderRepository.save(order);
         log.info("status of order changed successfully");
+
+        eventPublisher.publishEvent(new OrderStatusChangedEvent(
+                order.getId(),
+                order.getUser().getUserId(),
+                status
+                ));
 
         return orderMapper.toDto(order);
     }

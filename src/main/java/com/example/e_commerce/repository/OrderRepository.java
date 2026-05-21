@@ -33,4 +33,14 @@ public interface OrderRepository extends JpaRepository<Order,Long>{
     where o.customerEmail = :email
 """)
     List<Order> findByCustomerEmail(@Param("email") String email);
+
+    @Query("""
+    select distinct o from Order o
+    join fetch o.orderItems oi
+    join fetch oi.product
+    join o.user u
+    where u.username = :username
+    order by o.orderDate desc
+""")
+    List<Order> findByUsernameWithItems(@Param("username") String username);
 }

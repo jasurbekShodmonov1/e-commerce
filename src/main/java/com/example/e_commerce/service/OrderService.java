@@ -180,15 +180,29 @@ public class OrderService {
             );
         }
 
+        if(status == OrderStatus.CANCELLED){
+            for (OrderItem orderItem: order.getOrderItems()){
+                Product product = orderItem.getProduct();
+
+                product.setStock(
+                        product.getStock() + orderItem.getQuantity()
+                );
+
+                productRepository.save(product);
+            }
+        }
+
         order.setOrderStatus(status);
         orderRepository.save(order);
         log.info("status of order changed successfully");
 
-        eventPublisher.publishEvent(new OrderStatusChangedEvent(
-                order.getId(),
-                order.getUser().getUserId(),
-                status
-                ));
+        if (order.getUser() != null) {
+            eventPublisher.publishEvent(new OrderStatusChangedEvent(
+                    order.getId(),
+                    order.getUser().getUserId(),
+                    status
+            ));
+        }
 
         return orderMapper.toDto(order);
     }
@@ -198,6 +212,15 @@ public class OrderService {
                 orderRepository.findByCustomerEmail(email);
 
         return orders.stream()
+                .map(orderMapper::toDto)
+                .toList();
+    }
+
+    public List<OrderResponse> getMyOrders() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        return orderRepository.findByUsernameWithItems(username).stream()
                 .map(orderMapper::toDto)
                 .toList();
     }

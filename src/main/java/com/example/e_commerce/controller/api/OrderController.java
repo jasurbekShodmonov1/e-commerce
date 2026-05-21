@@ -23,6 +23,11 @@ public class OrderController {
         return orderService.getAll();
     }
 
+    @GetMapping("/my")
+    public List<OrderResponse> getMyOrders(){
+        return orderService.getMyOrders();
+    }
+
     @GetMapping("/{orderId}")
     public OrderResponse getOrderById(@PathVariable("orderId") Long id){
         return orderService.getById(id);

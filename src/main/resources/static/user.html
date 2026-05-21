@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - E-Commerce</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/js/auth.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans">
+
+<nav class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a href="/product.html" class="flex items-center gap-2">
+            <i class="fa-solid fa-bag-shopping text-blue-600 text-xl"></i>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">E-Store</span>
+        </a>
+
+        <div class="flex items-center gap-5">
+            <a href="/product.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Mahsulotlar</a>
+            <a href="/my-orders.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Mening buyurtmalarim</a>
+            <a href="/chat.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Chat</a>
+            <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                Chiqish
+            </button>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-4xl mx-auto px-6 py-8">
+    <section class="mb-6">
+        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Profil</h1>
+        <p class="text-slate-500 text-sm mt-1">Hisobingiz bo'yicha asosiy ma'lumotlar.</p>
+    </section>
+
+    <section class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <i class="fa-solid fa-user text-2xl"></i>
+            </div>
+            <div>
+                <h2 id="profileName" class="text-lg font-bold text-slate-900">Yuklanmoqda...</h2>
+                <p id="profileUsername" class="text-sm text-slate-500">...</p>
+            </div>
+        </div>
+
+        <dl class="divide-y divide-slate-100">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
+                <dt class="text-sm font-semibold text-slate-500">User ID</dt>
+                <dd id="profileId" class="sm:col-span-2 text-sm font-medium text-slate-900">...</dd>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
+                <dt class="text-sm font-semibold text-slate-500">Username</dt>
+                <dd id="profileUsernameRow" class="sm:col-span-2 text-sm font-medium text-slate-900">...</dd>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
+                <dt class="text-sm font-semibold text-slate-500">Role</dt>
+                <dd id="profileRole" class="sm:col-span-2 text-sm font-medium text-slate-900">...</dd>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
+                <dt class="text-sm font-semibold text-slate-500">Yaratilgan vaqt</dt>
+                <dd id="profileCreatedAt" class="sm:col-span-2 text-sm font-medium text-slate-900">...</dd>
+            </div>
+        </dl>
+    </section>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!localStorage.getItem('accessToken')) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        loadProfile();
+    });
+
+    async function loadProfile() {
+        try {
+            const response = await secureFetch('/api/users/me');
+            if (response && response.ok) {
+                renderProfile(await response.json());
+                return;
+            }
+        } catch (error) {
+            console.error('Profilni yuklashda xatolik:', error);
+        }
+
+        renderProfile({
+            userId: localStorage.getItem('userId'),
+            fullName: localStorage.getItem('username'),
+            username: localStorage.getItem('username'),
+            role: localStorage.getItem('role'),
+            createdAt: null
+        });
+    }
+
+    function renderProfile(user) {
+        document.getElementById('profileName').innerText = user.fullName || user.username || 'Foydalanuvchi';
+        document.getElementById('profileUsername').innerText = user.username ? '@' + user.username : '';
+        document.getElementById('profileId').innerText = user.userId || '-';
+        document.getElementById('profileUsernameRow').innerText = user.username || '-';
+        document.getElementById('profileRole').innerText = user.role || '-';
+        document.getElementById('profileCreatedAt').innerText = user.createdAt ? new Date(user.createdAt).toLocaleString() : '-';
+    }
+</script>
+</body>
+</html>

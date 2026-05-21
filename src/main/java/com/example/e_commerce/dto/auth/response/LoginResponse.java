@@ -5,6 +5,7 @@ import com.example.e_commerce.entity.user.UserRoles;
 public record LoginResponse(
         String accessToken,
         String refreshToken,
+        Long userId,
         String username,
         UserRoles role
 ) {

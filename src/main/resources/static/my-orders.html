@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mening buyurtmalarim - E-Commerce</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/js/auth.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans">
+
+<nav class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a href="/product.html" class="flex items-center gap-2">
+            <i class="fa-solid fa-bag-shopping text-blue-600 text-xl"></i>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">E-Store</span>
+        </a>
+
+        <div class="flex items-center gap-5">
+            <a href="/product.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Mahsulotlar</a>
+            <a href="/order.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Yangi buyurtma</a>
+            <a href="/chat.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Chat</a>
+            <a href="/user.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Profil</a>
+            <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                Chiqish
+            </button>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-6 py-8">
+    <section class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Mening buyurtmalarim</h1>
+            <p class="text-slate-500 text-sm mt-1">Faqat joriy profilingiz orqali yaratilgan buyurtmalar.</p>
+        </div>
+        <a href="/order.html" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-sm">
+            <i class="fa-solid fa-plus text-xs"></i>
+            Yangi buyurtma
+        </a>
+    </section>
+
+    <section id="ordersContainer" class="space-y-4">
+        <div class="py-16 text-center text-slate-400 bg-white border border-slate-100 rounded-2xl">
+            <i class="fa-solid fa-spinner animate-spin text-2xl mb-3 text-blue-500 block"></i>
+            Buyurtmalar yuklanmoqda...
+        </div>
+    </section>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!localStorage.getItem('accessToken')) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        loadMyOrders();
+    });
+
+    async function loadMyOrders() {
+        const container = document.getElementById('ordersContainer');
+        try {
+            const response = await secureFetch('/api/order/my');
+            if (response && response.ok) {
+                renderOrders(await response.json());
+                return;
+            }
+
+            container.innerHTML = `<div class="py-16 text-center text-red-500 bg-white border border-red-100 rounded-2xl">Buyurtmalarni yuklab bo'lmadi.</div>`;
+        } catch (error) {
+            container.innerHTML = `<div class="py-16 text-center text-red-500 bg-white border border-red-100 rounded-2xl">Server bilan aloqa uzildi.</div>`;
+        }
+    }
+
+    function renderOrders(orders) {
+        const container = document.getElementById('ordersContainer');
+        if (!orders || orders.length === 0) {
+            container.innerHTML = `
+                <div class="py-16 text-center bg-white border border-slate-100 rounded-2xl">
+                    <i class="fa-solid fa-receipt text-3xl text-slate-300 mb-3"></i>
+                    <p class="font-semibold text-slate-700">Hali buyurtma yo'q</p>
+                    <p class="text-sm text-slate-400 mt-1">Yangi buyurtma yaratish uchun yuqoridagi tugmadan foydalaning.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = orders.map(order => `
+            <article class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+                <div class="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Buyurtma #${order.id}</h2>
+                        <p class="text-sm text-slate-500">${order.orderDate ? new Date(order.orderDate).toLocaleString() : ''}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        ${statusBadge(order.status)}
+                        <span class="text-lg font-black text-slate-900">$${order.totalAmount || 0}</span>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-sm">
+                        <div><span class="text-slate-400">Mijoz:</span> <span class="font-semibold">${order.customerName || '-'}</span></div>
+                        <div><span class="text-slate-400">Email:</span> <span class="font-semibold">${order.customerEmail || '-'}</span></div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                            <tr class="text-left text-xs uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                                <th class="py-2">Mahsulot</th>
+                                <th class="py-2">Soni</th>
+                                <th class="py-2">Narx</th>
+                                <th class="py-2 text-right">Jami</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            ${(order.items || []).map(item => `
+                                <tr class="border-b border-slate-50 last:border-b-0">
+                                    <td class="py-2 font-medium text-slate-700">${item.productName || item.productId}</td>
+                                    <td class="py-2">${item.quantity}</td>
+                                    <td class="py-2">$${item.unitPrice}</td>
+                                    <td class="py-2 text-right font-bold">$${item.totalPrice}</td>
+                                </tr>
+                            `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </article>
+        `).join('');
+    }
+
+    function statusBadge(status) {
+        const value = status || 'PENDING';
+        const lower = value.toLowerCase();
+        let cls = 'bg-slate-50 text-slate-700 border-slate-200';
+        if (lower.includes('pending')) cls = 'bg-amber-50 text-amber-700 border-amber-200';
+        if (lower.includes('complete') || lower.includes('deliver')) cls = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        if (lower.includes('cancel')) cls = 'bg-red-50 text-red-700 border-red-200';
+
+        return `<span class="px-2.5 py-1 rounded-full border text-xs font-bold ${cls}">${value}</span>`;
+    }
+</script>
+</body>
+</html>

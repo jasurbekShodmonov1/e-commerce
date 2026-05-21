@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahsulotlar - E-Commerce</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Font Awesome Ikonkalar -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/js/auth.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans">
+
+<!-- Navigatsiya paneli -->
+<nav class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-bag-shopping text-blue-600 text-xl"></i>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">E-Store</span>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <a href="/user.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-circle-user text-lg text-slate-400"></i>
+                <span>Profil</span>
+            </a>
+            <a href="/my-orders.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-receipt text-lg text-slate-400"></i>
+                <span>Mening buyurtmalarim</span>
+            </a>
+            <a href="/chat.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-comments text-lg text-slate-400"></i>
+                <span>Chat</span>
+            </a>
+            <a href="/order.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-cart-shopping text-lg text-slate-400"></i>
+                <span>Buyurtmalar</span>
+            </a>
+
+            <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer">
+                Chiqish
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Asosiy Kontent -->
+<div class="max-w-7xl mx-auto px-6 py-8">
+
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Barcha Mahsulotlar</h1>
+            <p class="text-slate-500 text-sm mt-0.5">Mahsulotlarni ko'ring va yangi mahsulot qo'shing.</p>
+        </div>
+        <button onclick="openProductModal()" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-sm">
+            <i class="fa-solid fa-plus text-xs"></i>
+            Mahsulot qo'shish
+        </button>
+    </div>
+
+    <!-- Mahsulotlar Grid Ro'yxati -->
+    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Yuklanish indikatori -->
+        <div class="col-span-full py-20 text-center text-slate-400">
+            <i class="fa-solid fa-spinner animate-spin text-2xl mb-3 text-blue-500 block"></i>
+            Mahsulotlar yuklanmoqda...
+        </div>
+    </div>
+
+</div>
+
+<div id="productModal" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-lg font-bold text-slate-900">Yangi mahsulot</h2>
+            <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="productAlert" class="hidden mb-4 p-3 rounded-xl text-sm font-medium border"></div>
+
+        <form id="createProductForm" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mahsulot nomi</label>
+                <input type="text" id="productName" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Kategoriya</label>
+                <input type="text" id="productCategory" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Narx</label>
+                    <input type="number" id="productPrice" min="1" step="0.01" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Ombor soni</label>
+                    <input type="number" id="productStock" min="1" step="1" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeProductModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm">Bekor qilish</button>
+                <button type="submit" id="createProductBtn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm">Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- JAVASCRIPT LOGIKA -->
+<script>
+    const jwtToken = localStorage.getItem('accessToken');
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Xavfsizlik tekshiruvi: login qilmagan bo'lsa kirgizmymiz
+        if (!jwtToken) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        loadProducts();
+    });
+
+    document.getElementById('createProductForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const alertBox = document.getElementById('productAlert');
+        const submitBtn = document.getElementById('createProductBtn');
+        const payload = {
+            name: document.getElementById('productName').value.trim(),
+            category: document.getElementById('productCategory').value.trim(),
+            price: Number(document.getElementById('productPrice').value),
+            stock: Number(document.getElementById('productStock').value)
+        };
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Saqlanmoqda...';
+        alertBox.classList.add('hidden');
+
+        try {
+            const response = await secureFetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response || !response.ok) {
+                const error = response ? await response.json().catch(() => ({})) : {};
+                throw new Error(error.message || "Mahsulotni qo'shib bo'lmadi.");
+            }
+
+            document.getElementById('createProductForm').reset();
+            closeProductModal();
+            loadProducts();
+        } catch (error) {
+            alertBox.className = 'mb-4 p-3 rounded-xl text-sm font-medium border bg-red-50 text-red-700 border-red-100';
+            alertBox.innerText = error.message;
+            alertBox.classList.remove('hidden');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'Saqlash';
+        }
+    });
+
+    // 1. Mahsulotlarni serverdan yuklash
+    async function loadProducts() {
+        const grid = document.getElementById('productsGrid');
+        try {
+            // Mahsulotlaringiz qaysi endpointda bo'lsa o'shani yozasiz, masalan /api/products
+            const response = await secureFetch('/api/products');
+
+            if (response && response.ok) {
+                const page = await response.json();
+                renderProducts(page.content || []);
+            } else {
+                grid.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400">Hozircha mahsulotlar mavjud emas.</div>`;
+            }
+        } catch (error) {
+            grid.innerHTML = `<div class="col-span-full py-10 text-center text-red-500">Mahsulotlarni yuklashda xatolik yuz berdi.</div>`;
+        }
+    }
+
+    // Mahsulotlarni ekranga chiqarish
+    function renderProducts(products) {
+        const grid = document.getElementById('productsGrid');
+        if (!products || products.length === 0) {
+            grid.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400">Hozircha do'konda mahsulot yo'q.</div>`;
+            return;
+        }
+
+        grid.innerHTML = products.map(product => `
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-all group">
+                    <div class="h-48 bg-slate-100 flex items-center justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-image text-slate-300 text-4xl group-hover:scale-110 transition-transform"></i>
+                    </div>
+                    <div class="p-5 flex flex-col flex-1">
+                        <h3 class="font-bold text-slate-900 line-clamp-1">${product.name}</h3>
+                        <p class="text-xs text-slate-400 mt-1 line-clamp-2">Kategoriya: ${product.category || 'Noma\'lum'} | Omborda: ${product.stock ?? 0}</p>
+                        <div class="mt-auto pt-4 flex items-center justify-between">
+                            <span class="text-lg font-black text-slate-900">$${product.price}</span>
+                            <a href="/order.html" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer">
+                                Buyurtma
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    function openProductModal() {
+        document.getElementById('productModal').classList.remove('hidden');
+    }
+
+    function closeProductModal() {
+        document.getElementById('productModal').classList.add('hidden');
+        document.getElementById('productAlert').classList.add('hidden');
+    }
+</script>
+</body>
+</html>

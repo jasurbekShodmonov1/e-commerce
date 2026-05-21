@@ -32,6 +32,15 @@ public class SecurityConfig {
 
 
     private static final String[] PUBLIC_URLS = {
+            "/",
+            "/index.html",
+            "/login.html",
+            "/register.html",
+            "/product.html",
+            "/order.html",
+            "/user.html",
+            "/my-orders.html",
+            "/js/**",
             "/api/auth/login",
             "/api/auth/refresh",
             "/api/auth/logout",
@@ -73,6 +82,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
+                        .requestMatchers("/api/users/me").authenticated()
                         .requestMatchers(ADMIN_URLS).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

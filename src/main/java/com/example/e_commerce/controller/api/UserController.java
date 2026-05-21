@@ -25,6 +25,11 @@ public class UserController {
         return userService.getUserById(userId);
     }
 
+    @GetMapping("/me")
+    public UserResponse getCurrentUser(){
+        return userService.getCurrentUser();
+    }
+
     @PostMapping("/register")
     public UserResponse registerUser(@RequestBody UserRequest userRequest){
         return userService.createUser(userRequest);

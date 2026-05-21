@@ -9,6 +9,8 @@ import com.example.e_commerce.exception.UserNotFoundException;
 import com.example.e_commerce.mapper.UserMapper;
 import com.example.e_commerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +42,16 @@ public class UserService {
     public UserResponse getUserById(Long userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(()->new UserNotFoundException("User not found "));
+
+        return userMapper.toDto(user);
+    }
+
+    public UserResponse getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found " + username));
 
         return userMapper.toDto(user);
     }

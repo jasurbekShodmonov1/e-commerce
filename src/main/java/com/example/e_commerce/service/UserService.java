@@ -39,6 +39,16 @@ public class UserService {
         return users.stream().map(userMapper::toDto).toList();
     }
 
+    public List<UserResponse> getChatUsers() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        return userRepository.findAll().stream()
+                .filter(user -> !user.getUsername().equals(username))
+                .map(userMapper::toDto)
+                .toList();
+    }
+
     public UserResponse getUserById(Long userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(()->new UserNotFoundException("User not found "));

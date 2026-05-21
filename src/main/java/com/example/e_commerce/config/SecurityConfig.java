@@ -40,6 +40,7 @@ public class SecurityConfig {
             "/order.html",
             "/user.html",
             "/my-orders.html",
+            "/chat.html",
             "/js/**",
             "/api/auth/login",
             "/api/auth/refresh",
@@ -83,6 +84,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_URLS).permitAll()
                         .requestMatchers("/api/users/me").authenticated()
+                        .requestMatchers("/api/users/chat").authenticated()
                         .requestMatchers(ADMIN_URLS).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

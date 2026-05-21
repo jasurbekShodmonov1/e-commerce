@@ -30,6 +30,11 @@ public class UserController {
         return userService.getCurrentUser();
     }
 
+    @GetMapping("/chat")
+    public List<UserResponse> getChatUsers(){
+        return userService.getChatUsers();
+    }
+
     @PostMapping("/register")
     public UserResponse registerUser(@RequestBody UserRequest userRequest){
         return userService.createUser(userRequest);

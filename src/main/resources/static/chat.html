@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - E-Commerce</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="/js/auth.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans">
+
+<nav class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a href="/order.html" class="flex items-center gap-2">
+            <i class="fa-solid fa-comments text-blue-600 text-xl"></i>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">Chat</span>
+        </a>
+
+        <div class="flex items-center gap-5">
+            <a href="/order.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Buyurtma</a>
+            <a href="/product.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Mahsulotlar</a>
+            <a href="/my-orders.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Mening buyurtmalarim</a>
+            <a href="/user.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Profil</a>
+            <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                Chiqish
+            </button>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-6 py-8">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Userlar o'rtasida chat</h1>
+            <p class="text-slate-500 text-sm mt-1">Xabarlar WebSocket orqali real-time boradi va bazaga saqlanadi.</p>
+        </div>
+        <div id="connectionStatus" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-100">
+            WS ulanmoqda...
+        </div>
+    </div>
+
+    <section class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <aside class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-slate-100">
+                <h2 class="font-bold text-slate-900">Foydalanuvchilar</h2>
+                <p id="currentUserLabel" class="text-xs text-slate-400 mt-1">...</p>
+            </div>
+            <div id="usersList" class="divide-y divide-slate-100">
+                <div class="p-4 text-sm text-slate-400">Yuklanmoqda...</div>
+            </div>
+        </aside>
+
+        <section class="lg:col-span-3 bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden min-h-[620px] flex flex-col">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h2 id="chatTitle" class="font-bold text-slate-900">User tanlang</h2>
+                    <p id="chatSubtitle" class="text-xs text-slate-400 mt-1">Yozishma tarixi shu yerda chiqadi.</p>
+                </div>
+                <button onclick="loadConversation()" id="refreshBtn" disabled class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 text-slate-500 disabled:opacity-50">
+                    Yangilash
+                </button>
+            </div>
+
+            <div id="messages" class="flex-1 overflow-y-auto p-5 space-y-3 bg-slate-50">
+                <div class="h-full flex items-center justify-center text-center text-slate-400 text-sm">
+                    Yozishishni boshlash uchun chap tomondan user tanlang.
+                </div>
+            </div>
+
+            <form id="messageForm" class="p-4 border-t border-slate-100 flex gap-3 bg-white">
+                <input type="text" id="messageInput" disabled autocomplete="off"
+                       class="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 disabled:bg-slate-50"
+                       placeholder="Xabar yozing...">
+                <button type="submit" id="sendBtn" disabled
+                        class="px-5 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white font-semibold rounded-xl text-sm">
+                    Yuborish
+                </button>
+            </form>
+        </section>
+    </section>
+</main>
+
+<script>
+    let currentUser = null;
+    let selectedUser = null;
+    let stompClient = null;
+    let activeSubscription = null;
+    const renderedMessageIds = new Set();
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (!localStorage.getItem('accessToken')) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        await loadCurrentUser();
+        await loadUsers();
+        connectWebSocket();
+    });
+
+    document.getElementById('messageForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await sendMessage();
+    });
+
+    async function loadCurrentUser() {
+        const response = await secureFetch('/api/users/me');
+        if (!response || !response.ok) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        currentUser = await response.json();
+        document.getElementById('currentUserLabel').innerText = `Siz: ${currentUser.fullName || currentUser.username}`;
+    }
+
+    async function loadUsers() {
+        const list = document.getElementById('usersList');
+        const response = await secureFetch('/api/users/chat');
+        if (!response || !response.ok) {
+            list.innerHTML = `<div class="p-4 text-sm text-red-500">Userlar yuklanmadi.</div>`;
+            return;
+        }
+
+        const users = await response.json();
+        if (!users.length) {
+            list.innerHTML = `<div class="p-4 text-sm text-slate-400">Yozishish uchun boshqa user yo'q.</div>`;
+            return;
+        }
+
+        list.innerHTML = users.map(user => `
+            <button data-user-id="${user.userId}"
+                    data-username="${escapeAttr(user.username)}"
+                    data-full-name="${escapeAttr(user.fullName || '')}"
+                    id="user-${user.userId}"
+                    class="w-full p-4 text-left hover:bg-blue-50 transition-colors">
+                <div class="font-semibold text-slate-800">${escapeHtml(user.fullName || user.username)}</div>
+                <div class="text-xs text-slate-400">@${escapeHtml(user.username)}</div>
+            </button>
+        `).join('');
+
+        list.querySelectorAll('button[data-user-id]').forEach(button => {
+            button.addEventListener('click', () => {
+                selectUser(Number(button.dataset.userId), button.dataset.username, button.dataset.fullName);
+            });
+        });
+    }
+
+    async function selectUser(userId, username, fullName) {
+        selectedUser = { userId, username, fullName };
+
+        document.querySelectorAll('[id^="user-"]').forEach(el => el.classList.remove('bg-blue-50'));
+        document.getElementById(`user-${userId}`)?.classList.add('bg-blue-50');
+        document.getElementById('chatTitle').innerText = fullName || username;
+        document.getElementById('chatSubtitle').innerText = `@${username}`;
+        document.getElementById('messageInput').disabled = false;
+        document.getElementById('sendBtn').disabled = false;
+        document.getElementById('refreshBtn').disabled = false;
+
+        subscribeToConversation();
+        await loadConversation();
+    }
+
+    async function loadConversation() {
+        if (!selectedUser) return;
+
+        const messagesEl = document.getElementById('messages');
+        messagesEl.innerHTML = `<div class="py-12 text-center text-slate-400">Xabarlar yuklanmoqda...</div>`;
+        renderedMessageIds.clear();
+
+        const response = await secureFetch(`/api/chat/conversation/${selectedUser.userId}`);
+        if (!response || !response.ok) {
+            messagesEl.innerHTML = `<div class="py-12 text-center text-red-500">Xabarlar yuklanmadi.</div>`;
+            return;
+        }
+
+        const messages = await response.json();
+        messagesEl.innerHTML = '';
+
+        if (!messages.length) {
+            messagesEl.innerHTML = `<div class="py-12 text-center text-slate-400">Hali xabar yo'q. Birinchi xabarni yuboring.</div>`;
+            return;
+        }
+
+        messages.forEach(renderMessage);
+        scrollToBottom();
+    }
+
+    function connectWebSocket() {
+        const status = document.getElementById('connectionStatus');
+        const socket = new SockJS('/ws-ecommerce');
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect({ Authorization: `Bearer ${localStorage.getItem('accessToken')}` }, () => {
+            status.className = 'px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100';
+            status.innerText = 'WS ulandi';
+            subscribeToConversation();
+        }, () => {
+            status.className = 'px-3 py-1.5 rounded-full bg-red-50 text-red-700 text-xs font-bold border border-red-100';
+            status.innerText = 'WS xatolik';
+        });
+    }
+
+    function subscribeToConversation() {
+        if (!stompClient || !stompClient.connected || !currentUser || !selectedUser) return;
+
+        if (activeSubscription) {
+            activeSubscription.unsubscribe();
+        }
+
+        const topic = conversationTopic(currentUser.userId, selectedUser.userId);
+        activeSubscription = stompClient.subscribe(topic, message => {
+            const payload = JSON.parse(message.body);
+            if (selectedUser && (payload.senderId === selectedUser.userId || payload.recipientId === selectedUser.userId)) {
+                const emptyText = document.querySelector('#messages .text-slate-400');
+                if (emptyText) document.getElementById('messages').innerHTML = '';
+                renderMessage(payload);
+                scrollToBottom();
+            }
+        });
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const content = input.value.trim();
+        if (!selectedUser || !content) return;
+
+        const payload = { recipientId: selectedUser.userId, content };
+        input.value = '';
+
+        if (stompClient && stompClient.connected) {
+            stompClient.send('/app/chat.send', { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }, JSON.stringify(payload));
+            return;
+        }
+
+        const response = await secureFetch('/api/chat/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (response && response.ok) {
+            renderMessage(await response.json());
+            scrollToBottom();
+        }
+    }
+
+    function renderMessage(message) {
+        if (renderedMessageIds.has(message.id)) return;
+        renderedMessageIds.add(message.id);
+
+        const own = currentUser && message.senderId === currentUser.userId;
+        const wrapper = document.createElement('div');
+        wrapper.className = `flex ${own ? 'justify-end' : 'justify-start'}`;
+        wrapper.innerHTML = `
+            <div class="max-w-[75%] rounded-2xl px-4 py-3 ${own ? 'bg-blue-600 text-white' : 'bg-white border border-slate-100 text-slate-800'}">
+                <div class="text-xs ${own ? 'text-blue-100' : 'text-slate-400'} mb-1">${escapeHtml(message.senderUsername || '')}</div>
+                <div class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(message.content)}</div>
+                <div class="text-[10px] mt-2 ${own ? 'text-blue-100' : 'text-slate-400'}">${formatDate(message.timestamp)}</div>
+            </div>
+        `;
+        document.getElementById('messages').appendChild(wrapper);
+    }
+
+    function conversationTopic(userId1, userId2) {
+        const first = Math.min(userId1, userId2);
+        const second = Math.max(userId1, userId2);
+        return `/topic/chat/${first}-${second}`;
+    }
+
+    function scrollToBottom() {
+        const messages = document.getElementById('messages');
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function formatDate(value) {
+        return value ? new Date(value).toLocaleString() : '';
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    function escapeAttr(value) {
+        return escapeHtml(value).replaceAll('`', '&#096;');
+    }
+</script>
+</body>
+</html>

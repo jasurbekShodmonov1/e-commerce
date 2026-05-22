@@ -54,7 +54,8 @@ public class SecurityConfig {
             "/configuration/**",
             "/webjars/**",
             "/actuator/health",
-            "/actuator/health/**"
+            "/actuator/health/**",
+            "/error"
     };
 
 

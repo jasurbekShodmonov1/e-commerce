@@ -3,6 +3,7 @@ package com.example.e_commerce.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
@@ -19,6 +20,8 @@ public record ProductRequest(
         Integer stock,
 
         @NotBlank
-        String category
+        String category,
+
+        MultipartFile image
 ) {
 }

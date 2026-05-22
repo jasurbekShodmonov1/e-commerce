@@ -21,6 +21,9 @@ public record ProductResponse(
         @Positive
         Integer stock,
 
+        @NotNull
+        String imageUrl,
+
         Boolean isActive,
 
         @NotBlank

@@ -23,6 +23,8 @@ public class Product {
 
     private String name;
     private BigDecimal price;
+    @Column(name = "image_name")
+    private String imageName;
     private Integer stock;
     private String category;
     private Boolean isActive;

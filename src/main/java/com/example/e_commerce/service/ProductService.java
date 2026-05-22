@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final FileStorageService fileStorageService;
     private final ProductMapper productMapper;
 
     public PageResponse<ProductResponse> getAllProducts(int page, int size){
@@ -44,22 +46,28 @@ public class ProductService {
         return productMapper.toDto(product);
     }
 
-    public ProductResponse createProduct(ProductRequest productRequest){
+    public ProductResponse createProduct(ProductRequest productRequest, MultipartFile file){
         log.info("creating product start");
+        String imageName = fileStorageService.uploadFile(file);
         Product product = productMapper.toEntity(productRequest);
         product.setIsActive(true);
+        product.setImageName(imageName);
         product.setCreatedAt(LocalDateTime.now());
         Product save = productRepository.save(product);
         log.info("product created successfully");
         return productMapper.toDto(save);
     }
 
-    public ProductResponse updateProduct(Long id,ProductRequest productRequest){
+    public ProductResponse updateProduct(Long id,ProductRequest productRequest,MultipartFile image){
         log.info("updating product start");
         Product product = productRepository.findById(id)
                 .orElseThrow(()->new ProductNotFoundException("Product not found"));
         productMapper.updateFromDto(productRequest,product);
 
+        if (image != null && !image.isEmpty()) {
+            String newImageName = fileStorageService.uploadFile(image);
+            product.setImageName(newImageName);
+        }
         Product saved = productRepository.save(product);
         log.info("product updated successfully");
         return productMapper.toDto(saved);

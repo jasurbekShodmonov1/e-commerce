@@ -7,6 +7,7 @@ import com.example.e_commerce.entity.order.Product;
 import com.example.e_commerce.exception.ProductNotFoundException;
 import com.example.e_commerce.mapper.ProductMapper;
 import com.example.e_commerce.repository.ProductRepository;
+import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -35,6 +37,9 @@ public class ProductServiceTest {
     @Mock
     private ProductMapper productMapper;
 
+    @Mock
+    private FileStorageService fileStorageService;
+
     @InjectMocks
     private ProductService productService;
 
@@ -46,11 +51,19 @@ public class ProductServiceTest {
     private final String category = "fruit";
     private  Product product;
 
+    MockMultipartFile mockImage = new MockMultipartFile(
+            "image",
+            "test-image.png",
+            "image/png",
+            "rasm_baytlari".getBytes()
+    );
+    private @NotNull String imageUrl;
     private ProductResponse response = new ProductResponse(
             id,
             name,
             price,
             stock,
+            imageUrl,
             isActive,
             category
     );
@@ -124,12 +137,13 @@ public class ProductServiceTest {
     void createProduct_ShouldWork(){
         ProductResponse expect = response;
 
+        when(fileStorageService.uploadFile(mockImage)).thenReturn("unikal-fayl-nomi.png");
         when(productMapper.toEntity(request)).thenReturn(product);
         when(productRepository.save(product))
                 .thenReturn(product);
         when(productMapper.toDto(product)).thenReturn(response);
 
-        ProductResponse actual = productService.createProduct(request);
+        ProductResponse actual = productService.createProduct(request,mockImage);
 
         assertEquals(expect,actual);
         verify(productMapper).toEntity(any());
@@ -140,12 +154,13 @@ public class ProductServiceTest {
     void updateProduct_ShouldWork(){
         ProductResponse expect = response;
 
+        when(fileStorageService.uploadFile(mockImage)).thenReturn("unikal-fayl-nomi.png");
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
         when(productRepository.save(product))
                 .thenReturn(product);
         when(productMapper.toDto(product)).thenReturn(response);
 
-        ProductResponse actual = productService.updateProduct(id,request);
+        ProductResponse actual = productService.updateProduct(id,request,mockImage);
 
         assertEquals(expect,actual);
         verify(productRepository).findById(any());
@@ -157,7 +172,7 @@ public class ProductServiceTest {
         when(productRepository.findById(id)).thenReturn(Optional.empty());
         ProductNotFoundException exception = assertThrows(
                 ProductNotFoundException.class,
-                ()->productService.updateProduct(id,request)
+                ()->productService.updateProduct(id,request,mockImage)
         );
 
         verify(productRepository).findById(any());

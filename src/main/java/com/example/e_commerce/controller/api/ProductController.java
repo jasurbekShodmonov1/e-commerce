@@ -4,10 +4,14 @@ import com.example.e_commerce.dto.request.ProductRequest;
 import com.example.e_commerce.dto.response.PageResponse;
 import com.example.e_commerce.dto.response.ProductResponse;
 import com.example.e_commerce.service.ProductService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.util.List;
 
@@ -31,14 +35,18 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest productRequest){
-        return ResponseEntity.ok(productService.createProduct(productRequest));
+    @PostMapping(value = "/api/products",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> createProduct(@Valid @ModelAttribute  ProductRequest productRequest){
+        MultipartFile image = productRequest.image();
+
+        return ResponseEntity.ok(productService.createProduct(productRequest,image));
     }
 
-    @PutMapping("/{productId}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable("productId") Long id, @RequestBody ProductRequest productRequest){
-        return ResponseEntity.ok(productService.updateProduct(id,productRequest));
+    @PutMapping(value = "/{productId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable("productId") Long id,
+                                                         @Valid @ModelAttribute ProductRequest productRequest){
+        MultipartFile image = productRequest.image();
+        return ResponseEntity.ok(productService.updateProduct(id,productRequest,image));
     }
 
     @DeleteMapping("/{productId}")

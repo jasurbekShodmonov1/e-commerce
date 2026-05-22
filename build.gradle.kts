@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-flyway")
 	implementation ("org.springframework.boot:spring-boot-starter-validation")
 	implementation ("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation("io.minio:minio:8.6.0")
 	compileOnly("org.projectlombok:lombok")
 	implementation ("com.fasterxml.jackson.core:jackson-databind")
 	runtimeOnly("org.postgresql:postgresql")

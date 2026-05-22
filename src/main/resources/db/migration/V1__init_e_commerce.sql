@@ -21,6 +21,7 @@ CREATE TABLE products (
                           name       VARCHAR(255),
                           price      NUMERIC(38, 2),
                           stock      INTEGER,
+                          image_name VARCHAR(255) NOT NULL,
                           category   VARCHAR(255),
                           is_active  BOOLEAN,
                           created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,

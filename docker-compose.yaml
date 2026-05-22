@@ -24,11 +24,30 @@ services:
     ports:
       - "6379:6379"
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"  # API porti (Spring ulanadi)
+      - "9001:9001"  # Console porti (Brauzer uchun)
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   spring-app:
     build: .
     container_name: spring-app
     ports:
       - "8080:8080"
+      - "5005:5005"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/e-commerce
       - SPRING_DATASOURCE_USERNAME=postgres
@@ -37,11 +56,19 @@ services:
       - SPRING_FLYWAY_ENABLED=true
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_DATA_REDIS_PORT=6379
+      # MinIO uchun Docker ichidagi muhit o'zgaruvchilari
+      - MINIO_URL=http://minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET_NAME=products-bucket
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_started
+      minio:
+        condition: service_healthy
 
   nginx:
     image: nginx:1.27-alpine
@@ -55,3 +82,4 @@ services:
 
 volumes:
   postgres_data:
+  minio_data:

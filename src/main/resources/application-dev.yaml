@@ -40,3 +40,11 @@ management:
 springdoc:
   swagger-ui:
     path:/swagger-ui.html
+
+minio:
+  url: ${MINIO_URL:http://localhost:9000}
+  access:
+    key: ${MINIO_ACCESS_KEY:minioadmin}
+    key-secret: ${MINIO_SECRET_KEY:minioadmin}
+  bucket:
+    name: ${MINIO_BUCKET_NAME:products-bucket}

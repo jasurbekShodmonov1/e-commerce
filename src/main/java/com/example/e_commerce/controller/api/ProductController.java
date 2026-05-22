@@ -35,7 +35,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    @PostMapping(value = "/api/products",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductResponse> createProduct(@Valid @ModelAttribute  ProductRequest productRequest){
         MultipartFile image = productRequest.image();
 

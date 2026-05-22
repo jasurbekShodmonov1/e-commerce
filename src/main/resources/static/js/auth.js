@@ -9,6 +9,16 @@ async function secureFetch(url, options = {}) {
         options.headers['Authorization'] = `Bearer ${token}`;
     }
 
+    // 🌟 MULTIPART/FORM-DATA (RASM) UCHUN FILTR:
+    // Agar yuborilayotgan body FormData (rasm/fayl) bo'lsa, Content-Type headerini o'chiramiz.
+    // Brauzer o'zi to'g'ri 'multipart/form-data; boundary=...' formatini joylaydi.
+    if (options.body instanceof FormData) {
+        delete options.headers['Content-Type'];
+    } else if (!options.headers['Content-Type']) {
+        // Agar oddiy JSON so'rov bo'lsa va qo'lda yozilmagan bo'lsa, JSON deb belgilaymiz
+        options.headers['Content-Type'] = 'application/json';
+    }
+
     try {
         let response = await fetch(url, options);
 
@@ -68,7 +78,6 @@ async function handleLogout() {
     const currentRefreshToken = localStorage.getItem('refreshToken');
     if (currentRefreshToken) {
         try {
-            // /api/auth/logout ham ochiq yo'l, lekin joriy tokenni o'chirishi uchun yuboramiz
             await fetch('/api/auth/logout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

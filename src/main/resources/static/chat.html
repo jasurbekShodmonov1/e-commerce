@@ -1,3 +1,97 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - E-Commerce</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <script src="/js/auth.js"></script>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans flex flex-col h-screen overflow-hidden">
+
+<nav class="bg-white border-b border-slate-100 shadow-sm z-40 shrink-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-bag-shopping text-blue-600 text-xl"></i>
+            <span class="font-bold text-lg text-slate-800 tracking-tight">E-Store</span>
+        </div>
+
+        <div class="flex items-center gap-4 sm:gap-6">
+            <a href="/product.html" class="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-box text-base text-slate-400"></i>
+                <span class="hidden sm:inline">Mahsulotlar</span>
+            </a>
+            <a href="/user.html" class="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-circle-user text-base text-slate-400"></i>
+                <span class="hidden sm:inline">Profil</span>
+            </a>
+            <button onclick="handleLogout()" class="px-2.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer">
+                Chiqish
+            </button>
+        </div>
+    </div>
+</nav>
+
+<div class="max-w-7xl w-full mx-auto sm:px-6 sm:py-4 flex-1 flex relative overflow-hidden h-[calc(100vh-4rem)] bg-white sm:bg-transparent">
+
+    <div id="usersSidebar" class="w-full sm:w-80 bg-white border-r sm:border border-slate-100 sm:rounded-2xl shadow-sm flex flex-col overflow-hidden z-20 absolute inset-y-0 left-0 transition-transform duration-300 sm:relative sm:translate-x-0">
+        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
+            <span id="currentUserLabel" class="font-bold text-sm text-slate-700 truncate mr-2">Siz: Yuklanmoqda...</span>
+            <span id="connectionStatus" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200 shrink-0">
+                Bog'lanmoqda...
+            </span>
+        </div>
+        <div id="usersList" class="flex-1 overflow-y-auto divide-y divide-slate-50">
+            <div class="p-4 text-center text-slate-400 text-sm">
+                <i class="fa-solid fa-spinner animate-spin mr-2 text-blue-500"></i>Yuklanmoqda...
+            </div>
+        </div>
+    </div>
+
+    <div id="chatArea" class="w-full flex-1 bg-white border border-slate-100 sm:rounded-2xl shadow-sm flex flex-col overflow-hidden z-10 translate-x-full sm:translate-x-0 transition-transform duration-300 absolute inset-y-0 right-0 sm:relative">
+
+        <div class="p-3 sm:p-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <button onclick="backToUsersList()" class="sm:hidden p-2 -ml-1 text-slate-500 hover:bg-slate-100 rounded-xl cursor-pointer">
+                    <i class="fa-solid fa-arrow-left text-base"></i>
+                </button>
+                <div class="overflow-hidden">
+                    <h2 id="chatTitle" class="font-bold text-slate-800 text-sm sm:text-base truncate">Suhbatdoshni tanlang</h2>
+                    <p id="chatSubtitle" class="text-[11px] sm:text-xs text-slate-400 truncate mt-0.5">Yozishishni boshlash uchun foydalanuvchini bosing</p>
+                </div>
+            </div>
+            <button id="refreshBtn" onclick="loadConversation()" disabled class="p-2 text-slate-400 hover:text-blue-600 rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-30 cursor-pointer shrink-0">
+                <i class="fa-solid fa-rotate text-sm"></i>
+            </button>
+        </div>
+
+        <div id="messages" class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/60 space-y-3">
+            <div class="h-full flex flex-col items-center justify-center text-slate-400 p-6 text-center">
+                <i class="fa-solid fa-comments text-5xl mb-3 text-slate-200 block"></i>
+                <p class="text-sm">Suhbatni boshlash uchun foydalanuvchini tanlang.</p>
+            </div>
+        </div>
+
+        <div class="p-3 sm:p-4 border-t border-slate-100 bg-white shrink-0 pb-safe">
+            <form id="messageForm" class="flex gap-2 sm:gap-3">
+                <input type="text" id="messageInput" disabled placeholder="Xabarni yozing..." required autocomplete="off"
+                       class="flex-1 px-3.5 py-2.5 sm:py-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-400 transition-all">
+                <button type="submit" id="sendBtn" disabled
+                        class="px-4 sm:px-5 py-2.5 sm:py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-semibold rounded-xl text-sm shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:cursor-not-allowed">
+                    <span class="hidden sm:inline">Yuborish</span>
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
 <script>
     let currentUser = null;
     let selectedUser = null;
@@ -5,41 +99,58 @@
     let activeSubscription = null;
     const renderedMessageIds = new Set();
 
+    async function safeFetch(url, options = {}) {
+        if (typeof secureFetch === 'function') {
+            return secureFetch(url, options);
+        }
+        const token = localStorage.getItem('accessToken');
+        options.headers = options.headers || {};
+        if (token) {
+            options.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return fetch(url, options);
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
         if (!localStorage.getItem('accessToken')) {
             window.location.href = '/login.html';
             return;
         }
-
-        // 👇 1. SAHIFA YUKLANGANDA BROWSERDAN BILDIRISHNOMAGA RUXSAT SO'RASH
         if (window.Notification && Notification.permission !== "granted" && Notification.permission !== "denied") {
             Notification.requestPermission();
         }
-
+        initEventListeners();
         await loadCurrentUser();
         await loadUsers();
         connectWebSocket();
     });
 
-    document.getElementById('messageForm').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        await sendMessage();
-    });
+    function initEventListeners() {
+        const messageForm = document.getElementById('messageForm');
+        if (messageForm) {
+            messageForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                await sendMessage();
+            });
+        }
+    }
 
     async function loadCurrentUser() {
-        const response = await secureFetch('/api/users/me');
+        const response = await safeFetch('/api/users/me');
         if (!response || !response.ok) {
             window.location.href = '/login.html';
             return;
         }
-
         currentUser = await response.json();
-        document.getElementById('currentUserLabel').innerText = `Siz: ${currentUser.fullName || currentUser.username}`;
+        const label = document.getElementById('currentUserLabel');
+        if (label) label.innerText = `Siz: ${currentUser.fullName || currentUser.username}`;
     }
 
     async function loadUsers() {
         const list = document.getElementById('usersList');
-        const response = await secureFetch('/api/users/chat');
+        if (!list) return;
+
+        const response = await safeFetch('/api/users/chat');
         if (!response || !response.ok) {
             list.innerHTML = `<div class="p-4 text-sm text-red-500">Userlar yuklanmadi.</div>`;
             return;
@@ -56,12 +167,12 @@
                     data-username="${escapeAttr(user.username)}"
                     data-full-name="${escapeAttr(user.fullName || '')}"
                     id="user-${user.userId}"
-                    class="w-full p-4 text-left hover:bg-blue-50 transition-colors flex items-center justify-between">
-                <div>
-                    <div class="font-semibold text-slate-800">${escapeHtml(user.fullName || user.username)}</div>
-                    <div class="text-xs text-slate-400">@${escapeHtml(user.username)}</div>
+                    class="w-full p-4 text-left hover:bg-slate-50 active:bg-slate-100 transition-all flex items-center justify-between cursor-pointer border-b border-slate-50 last:border-0 group">
+                <div class="overflow-hidden mr-2">
+                    <div class="font-semibold text-sm text-slate-800 group-hover:text-blue-600 transition-colors truncate">${escapeHtml(user.fullName || user.username)}</div>
+                    <div class="text-xs text-slate-400 truncate">@${escapeHtml(user.username)}</div>
                 </div>
-                <div id="badge-${user.userId}" class="w-2.5 h-2.5 bg-emerald-500 rounded-full hidden"></div>
+                <div id="badge-${user.userId}" class="w-2.5 h-2.5 bg-emerald-500 rounded-full hidden shrink-0 shadow-sm animate-pulse"></div>
             </button>
         `).join('');
 
@@ -75,32 +186,42 @@
     async function selectUser(userId, username, fullName) {
         selectedUser = { userId, username, fullName };
 
-        document.querySelectorAll('[id^="user-"]').forEach(el => el.classList.remove('bg-blue-50'));
-        document.getElementById(`user-${userId}`)?.classList.add('bg-blue-50');
-
-        // Chat ochilganda o'sha user yonidagi yashil nuqtani o'chiramiz
+        document.querySelectorAll('[id^="user-"]').forEach(el => el.classList.remove('bg-blue-50/70', 'border-l-4', 'border-l-blue-600'));
+        document.getElementById(`user-${userId}`)?.classList.add('bg-blue-50/70', 'border-l-4', 'border-l-blue-600');
         document.getElementById(`badge-${userId}`)?.classList.add('hidden');
 
-        document.getElementById('chatTitle').innerText = fullName || username;
-        document.getElementById('chatSubtitle').innerText = `@${username}`;
-        document.getElementById('messageInput').disabled = false;
-        document.getElementById('sendBtn').disabled = false;
-        document.getElementById('refreshBtn').disabled = false;
+        // 📱 Mobil uchun: O'ng tomonni to'liq ochish va chap tomonni berkitish ekrani
+        document.getElementById('usersSidebar').classList.add('-translate-x-full');
+        document.getElementById('chatArea').classList.remove('translate-x-full');
+
+        if (document.getElementById('chatTitle')) document.getElementById('chatTitle').innerText = fullName || username;
+        if (document.getElementById('chatSubtitle')) document.getElementById('chatSubtitle').innerText = `@${username}`;
+        if (document.getElementById('messageInput')) document.getElementById('messageInput').disabled = false;
+        if (document.getElementById('sendBtn')) document.getElementById('sendBtn').disabled = false;
+        if (document.getElementById('refreshBtn')) document.getElementById('refreshBtn').disabled = false;
 
         subscribeToConversation();
         await loadConversation();
     }
 
+    // 📱 Mobil uchun: Orqaga qaytish funksiyasi
+    function backToUsersList() {
+        document.getElementById('usersSidebar').classList.remove('-translate-x-full');
+        document.getElementById('chatArea').classList.add('translate-x-full');
+        selectedUser = null;
+    }
+
     async function loadConversation() {
         if (!selectedUser) return;
-
         const messagesEl = document.getElementById('messages');
-        messagesEl.innerHTML = `<div class="py-12 text-center text-slate-400">Xabarlar yuklanmoqda...</div>`;
+        if (!messagesEl) return;
+
+        messagesEl.innerHTML = `<div class="h-full flex items-center justify-center text-slate-400"><i class="fa-solid fa-spinner animate-spin text-2xl mr-2 text-blue-500"></i></div>`;
         renderedMessageIds.clear();
 
-        const response = await secureFetch(`/api/chat/conversation/${selectedUser.userId}`);
+        const response = await safeFetch(`/api/chat/conversation/${selectedUser.userId}`);
         if (!response || !response.ok) {
-            messagesEl.innerHTML = `<div class="py-12 text-center text-red-500">Xabarlar yuklanmadi.</div>`;
+            messagesEl.innerHTML = `<div class="h-full flex items-center justify-center text-red-500">Xabarlar yuklanmadi.</div>`;
             return;
         }
 
@@ -108,7 +229,7 @@
         messagesEl.innerHTML = '';
 
         if (!messages.length) {
-            messagesEl.innerHTML = `<div class="py-12 text-center text-slate-400">Hali xabar yo'q. Birinchi xabarni yuboring.</div>`;
+            messagesEl.innerHTML = `<div class="h-full flex flex-col items-center justify-center text-slate-400 text-sm">Hali xabar yo'q. Birinchi xabarni yuboring.</div>`;
             return;
         }
 
@@ -118,79 +239,69 @@
 
     function connectWebSocket() {
         const status = document.getElementById('connectionStatus');
+        if (typeof SockJS === 'undefined' || typeof Stomp === 'undefined') {
+            if (status) status.innerText = 'Lib xato';
+            return;
+        }
         const socket = new SockJS('/ws-ecommerce');
         stompClient = Stomp.over(socket);
         stompClient.debug = null;
 
         stompClient.connect({ Authorization: `Bearer ${localStorage.getItem('accessToken')}` }, () => {
-            status.className = 'px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100';
-            status.innerText = 'WS ulandi';
-
-            // 🔥 GLOBAL TINGLOVCHI: O'zimizga tegishli hamma xabarlarni bitta kanaldan eshitamiz
-            // Real loyihada foydalanuvchi hamma kelayotgan xabarlardan xabardor bo'lishi kerak
+            if (status) {
+                status.className = 'px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100';
+                status.innerText = 'Online';
+            }
             subscribeToUserChannel();
         }, () => {
-            status.className = 'px-3 py-1.5 rounded-full bg-red-50 text-red-700 text-xs font-bold border border-red-100';
-            status.innerText = 'WS xatolik';
+            if (status) {
+                status.className = 'px-2 py-0.5 rounded-full bg-red-50 text-red-700 text-[10px] font-bold border border-red-100';
+                status.innerText = 'Oflayn';
+            }
         });
     }
 
-    // Yangi mantiq: Foydalanuvchi sahifaning o'zida har qanday odamdan xabar kelishini eshitib turadi
     function subscribeToUserChannel() {
         if (!stompClient || !stompClient.connected || !currentUser) return;
-
-        // Har doim o'zimizga tegishli umumiy mavzuni tinglaymiz
-        // Masalan: /topic/user/1/chat
         stompClient.subscribe(`/topic/chat/user/${currentUser.userId}`, message => {
-            const payload = JSON.parse(message.body);
-            handleIncomingMessage(payload);
+            handleIncomingMessage(JSON.parse(message.body));
         });
-
-        // Agar hozir biror user tanlangan bo'lsa, dialog kanalini ham tekshiramiz
         subscribeToConversation();
     }
 
     function subscribeToConversation() {
         if (!stompClient || !stompClient.connected || !currentUser || !selectedUser) return;
-
-        if (activeSubscription) {
-            activeSubscription.unsubscribe();
-        }
+        if (activeSubscription) activeSubscription.unsubscribe();
 
         const topic = conversationTopic(currentUser.userId, selectedUser.userId);
         activeSubscription = stompClient.subscribe(topic, message => {
-            const payload = JSON.parse(message.body);
-            handleIncomingMessage(payload);
+            handleIncomingMessage(JSON.parse(message.body));
         });
     }
 
-    // 👇 XABAR KELGANDA UNING QAYERDA KO'RINISHINI BOSHQARUVCHI AMALIY FUNKSIYA
     function handleIncomingMessage(payload) {
-        // O'zimiz yuborgan xabar bo'lsa srazu ekranga chizamiz
         const isOwn = currentUser && payload.senderId === currentUser.userId;
 
         if (selectedUser && (payload.senderId === selectedUser.userId || payload.recipientId === selectedUser.userId)) {
-            const emptyText = document.querySelector('#messages .text-slate-400');
-            if (emptyText) document.getElementById('messages').innerHTML = '';
+            const messagesContainer = document.getElementById('messages');
+            const emptyText = document.querySelector('#messages .text-slate-400, #messages p');
+            if (emptyText && messagesContainer) messagesContainer.innerHTML = '';
 
             renderMessage(payload);
             scrollToBottom();
 
-            // Agar xabar suhbatdoshdan kelgan bo'lsa-yu, lekin biz boshqa tabda bo'lsak (orqa fonda) -> NOTIFICATION
             if (!isOwn && document.hidden) {
                 showWebNotification(payload.senderUsername || "Suhbatdosh", payload.content);
             }
         } else if (!isOwn) {
-            // Agar xabar mutloqo boshqa, hozir ochiq bo'lmagan userdan kelgan bo'lsa:
-            // 1. O'sha user yoniga yashil nuqta (badge) qo'yamiz
             document.getElementById(`badge-${payload.senderId}`)?.classList.remove('hidden');
-            // 2. Tizimda bildirishnoma chiqaramiz
-            showWebNotification(payload.senderUsername || "Yangi suhbatdosh", payload.content);
+            showWebNotification(payload.senderUsername || "Yangi xabar", payload.content);
         }
     }
 
     async function sendMessage() {
         const input = document.getElementById('messageInput');
+        if (!input) return;
         const content = input.value.trim();
         if (!selectedUser || !content) return;
 
@@ -202,7 +313,7 @@
             return;
         }
 
-        const response = await secureFetch('/api/chat/messages', {
+        const response = await safeFetch('/api/chat/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -216,32 +327,27 @@
         if (renderedMessageIds.has(message.id)) return;
         renderedMessageIds.add(message.id);
 
+        const messagesContainer = document.getElementById('messages');
+        if (!messagesContainer) return;
+
         const own = currentUser && message.senderId === currentUser.userId;
         const wrapper = document.createElement('div');
-        wrapper.className = `flex ${own ? 'justify-end' : 'justify-start'}`;
+        wrapper.className = `flex ${own ? 'justify-end' : 'justify-start'} w-full`;
+
         wrapper.innerHTML = `
-            <div class="max-w-[75%] rounded-2xl px-4 py-3 ${own ? 'bg-blue-600 text-white' : 'bg-white border border-slate-100 text-slate-800'}">
-                <div class="text-xs ${own ? 'text-blue-100' : 'text-slate-400'} mb-1">${escapeHtml(message.senderUsername || '')}</div>
-                <div class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(message.content)}</div>
-                <div class="text-[10px] mt-2 ${own ? 'text-blue-100' : 'text-slate-400'}">${formatDate(message.timestamp)}</div>
+            <div class="max-w-[85%] sm:max-w-[75%] rounded-2xl px-3.5 py-2 shadow-sm ${own ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-100 text-slate-800 rounded-tl-none'}">
+                <div class="text-[9px] ${own ? 'text-blue-200' : 'text-slate-400'} font-bold mb-0.5">${escapeHtml(message.senderUsername || '')}</div>
+                <div class="text-sm leading-relaxed string-break-all whitespace-pre-wrap">${escapeHtml(message.content)}</div>
+                <div class="text-[9px] mt-1 text-right ${own ? 'text-blue-200' : 'text-slate-400'}">${formatDate(message.timestamp)}</div>
             </div>
         `;
-        document.getElementById('messages').appendChild(wrapper);
+        messagesContainer.appendChild(wrapper);
     }
 
-    // 👇 2. BRAUZERDA BILDIRISHNOMA CHIQARUVCHI ASOSIY FUNKSIYA
     function showWebNotification(senderName, messageText) {
         if (window.Notification && Notification.permission === "granted") {
-            const notification = new Notification("💬 Yangi xabar: " + senderName, {
-                body: messageText,
-                // ixtiyoriy ikonka logotipi:
-                // icon: "/favicon.ico"
-            });
-
-            // Bildirishnoma bosilganda avtomatik sayt oynasiga (tabiga) olib o'tadi
-            notification.onclick = function() {
-                window.focus();
-            };
+            const notification = new Notification("💬 " + senderName, { body: messageText });
+            notification.onclick = () => window.focus();
         }
     }
 
@@ -251,5 +357,26 @@
         return `/topic/chat/${first}-${second}`;
     }
 
-    // ... Qolgan formatlash funksiyalari (scrollToBottom, formatDate, escapeHtml, escapeAttr) o'zgarishsiz qoladi
+    //Zaruriy vizual boshqaruvlar
+    function scrollToBottom() {
+        const el = document.getElementById('messages');
+        if (el) el.scrollTop = el.scrollHeight;
+    }
+
+    function formatDate(timestamp) {
+        if (!timestamp) return '';
+        return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function escapeAttr(str) {
+        if (!str) return '';
+        return str.replace(/"/g, '&quot;');
+    }
 </script>
+</body>
+</html>

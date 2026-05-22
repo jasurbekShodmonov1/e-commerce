@@ -2,17 +2,13 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Buyurtmalar Boshqaruvi & Live Monitor</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Font Awesome Ikonkalar -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SockJS va STOMP (WebSocket uchun) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
-    <!-- auth.js faylingiz ulanadi -->
     <script src="/js/auth.js"></script>
 
     <style>
@@ -25,73 +21,102 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans">
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans pb-20 md:pb-0">
 
-<!-- Navigatsiya paneli -->
 <nav class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <i class="fa-solid fa-cart-shopping text-indigo-600 text-xl"></i>
-            <span class="font-bold text-lg text-slate-800 tracking-tight">E-Commerce Admin</span>
+            <i class="fa-solid fa-bag-shopping text-blue-600 text-xl"></i>
+            <span class="font-bold text-base sm:text-lg text-slate-800 tracking-tight">E-Store</span>
         </div>
 
-        <div class="flex items-center gap-4">
-            <a href="/product.html" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Mahsulotlar</a>
-            <a href="/my-orders.html" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Mening buyurtmalarim</a>
-            <a href="/chat.html" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Chat</a>
-            <a href="/user.html" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Profil</a>
+        <div class="hidden md:flex items-center gap-6">
+            <a href="/product.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-box text-lg text-slate-400"></i>
+                <span>Mahsulotlar</span>
+            </a>
+            <a href="/my-orders.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-receipt text-lg text-slate-400"></i>
+                <span>Mening buyurtmalarim</span>
+            </a>
+            <a href="/chat.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-comments text-lg text-slate-400"></i>
+                <span>Chat</span>
+            </a>
+            <a href="/user.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-circle-user text-lg text-slate-400"></i>
+                <span>Profil</span>
+            </a>
         </div>
 
-        <!-- Jonli ulanish statusi indikatori -->
-        <div id="status-container" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-xs font-semibold transition-colors duration-300">
-                <span id="status-ping" class="relative flex h-2 w-2">
+        <div class="flex items-center gap-2">
+            <div id="status-container" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[11px] sm:text-xs font-semibold">
+                <span id="status-ping" class="relative flex h-1.5 w-1.5">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span id="status-dot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    <span id="status-dot" class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
                 </span>
-            <span id="status-text">WS Ulanmoqda...</span>
-        </div>
+                <span id="status-text" class="hidden sm:inline">WS Ulanmoqda...</span>
+            </div>
 
-        <button onclick="handleLogout()" class="px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-all flex items-center gap-2">
-            <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i> Chiqish
-        </button>
+            <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer">
+                <span class="hidden md:inline">Chiqish</span>
+                <i class="fa-solid fa-arrow-right-from-bracket text-base md:text-[10px] md:ml-1"></i>
+            </button>
+        </div>
     </div>
 </nav>
 
-<!-- Asosiy Kontent -->
-<div class="max-w-7xl mx-auto px-6 py-8">
+<div class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-100 shadow-lg z-40 flex justify-around items-center h-16 pb-safe">
+    <a href="/product.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-box text-lg"></i>
+        <span class="text-[10px] font-medium">Do'kon</span>
+    </a>
+    <a href="/order.html" class="flex flex-col items-center gap-0.5 text-blue-600">
+        <i class="fa-solid fa-cart-shopping text-lg"></i>
+        <span class="text-[10px] font-bold">Savat</span>
+    </a>
+    <a href="/my-orders.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-receipt text-lg"></i>
+        <span class="text-[10px] font-medium">Buyurtmalar</span>
+    </a>
+    <a href="/user.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-circle-user text-lg"></i>
+        <span class="text-[10px] font-medium">Profil</span>
+    </a>
+</div>
 
-    <!-- Sarlavha qismi -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Buyurtma berish</h1>
-            <p class="text-slate-500 text-sm mt-1">Mahsulotni tanlang, miqdorni kiriting va buyurtmani yuboring.</p>
+            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Buyurtma berish</h1>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Mahsulotni tanlang, miqdorni kiriting va buyurtmani yuboring.</p>
         </div>
-        <button onclick="openModal()" class="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-sm hover:shadow transition-all">
-            <i class="fa-solid fa-plus text-xs"></i> Yangi buyurtma yaratish
+        <button onclick="openModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-sm transition-all cursor-pointer active:scale-98">
+            <i class="fa-solid fa-plus text-xs"></i> <span>Yangi buyurtma yaratish</span>
         </button>
     </div>
 
-    <!-- 2 Koloniyali Grid: Chapda Jadval, O'ngda Live Monitor -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
-        <!-- CHAP TOMON: BUYURTMALAR JADVALI (2 Koloniya joy egallaydi) -->
-        <div class="lg:col-span-2 space-y-6">
-            <!-- Qidiruv va Filtrlar -->
-            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs flex flex-col sm:flex-row gap-3 justify-between items-center">
+        <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+            <div class="bg-white p-3 sm:p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row gap-3 justify-between items-center">
                 <div class="relative flex-1 w-full">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                            <i class="fa-solid fa-envelope text-xs"></i>
-                        </span>
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
                     <input type="email" id="searchEmail" oninput="searchByEmail()"
-                           class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all"
+                           class="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 transition-all"
                            placeholder="Mijoz emaili bo'yicha qidirish...">
                 </div>
-
-                <button onclick="loadOrders()" class="w-full sm:w-auto px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">Ro'yxatni yangilash</button>
+                <button onclick="loadOrders()" class="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all cursor-pointer shrink-0">
+                    Ro'yxatni yangilash
+                </button>
             </div>
 
-            <!-- Jadval Konteyneri -->
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div id="ordersMobileCards" class="block md:hidden space-y-3"></div>
+
+            <div class="hidden md:block bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
@@ -106,7 +131,7 @@
                         <tbody id="ordersTableBody" class="divide-y divide-slate-100 text-sm text-slate-600">
                         <tr>
                             <td colspan="5" class="py-12 text-center text-slate-400">
-                                <i class="fa-solid fa-spinner animate-spin text-2xl mb-2 text-indigo-500 block"></i>
+                                <i class="fa-solid fa-spinner animate-spin text-2xl mb-2 text-blue-500 block"></i>
                                 Yuklanmoqda...
                             </td>
                         </tr>
@@ -116,102 +141,112 @@
             </div>
         </div>
 
-        <!-- O'NG TOMON: WEBSOCKET LIVE MONITOR (1 Koloniya joy egallaydi) -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden sticky top-24">
-            <div class="p-4 bg-gradient-to-r from-indigo-600 to-violet-600 text-white flex justify-between items-center">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden lg:sticky lg:top-24">
+            <div class="p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex justify-between items-center">
                 <div>
                     <h3 class="font-bold text-sm tracking-wide">Live Monitor</h3>
-                    <p class="text-[11px] text-indigo-100">Jonli bildirishnomalar</p>
+                    <p class="text-[10px] text-blue-100">Jonli bildirishnomalar</p>
                 </div>
-                <div class="text-[11px] bg-white/20 px-2 py-1 rounded-md font-mono">
-                    User ID: <span id="display-user-id" class="font-bold">...</span>
+                <div class="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-mono">
+                    ID: <span id="display-user-id" class="font-bold">...</span>
                 </div>
             </div>
 
-            <div class="p-4 min-h-[300px] max-h-[500px] overflow-y-auto">
-                <!-- Bo'sh holat -->
-                <div id="empty-state" class="text-center py-16 border border-dashed border-slate-200 rounded-xl">
+            <div class="p-4 min-h-[160px] sm:min-h-[250px] max-h-[350px] lg:max-h-[500px] overflow-y-auto">
+                <div id="empty-state" class="text-center py-10 border border-dashed border-slate-200 rounded-xl">
                     <p class="text-slate-400 text-xs">Hozircha yangi bildirishnoma yo'q.<br>Tizim oqimni tinglamoqda...</p>
                 </div>
-
-                <!-- Jonli tushadigan xabarlar ro'yxati -->
-                <ul id="notifications" class="space-y-2 hidden">
-                    <!-- WebSocket xabarlari shu yerga li bo'lib qo'shiladi -->
-                </ul>
+                <ul id="notifications" class="space-y-2 hidden"></ul>
             </div>
         </div>
 
     </div>
 </div>
 
-<!-- Modallar (Yaratish va Tafsilotlar) -->
-<!-- 1. Create Modal -->
-<div id="orderModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-slate-900">Yangi buyurtma yaratish</h3>
-            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+<div id="orderModal" class="hidden fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+    <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-5 sm:p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-4 shrink-0">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900">Yangi buyurtma yaratish</h3>
+            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-50 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <form id="createOrderForm" class="space-y-4">
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mijoz ismi</label>
-                <input type="text" id="customerName" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none">
+                <input type="text" id="customerName" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mijoz emaili</label>
-                <input type="email" id="customerEmail" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none">
+                <input type="email" id="customerEmail" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mahsulot</label>
-                <select id="productId" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none">
+                <select id="productId" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 bg-white">
                     <option value="">Mahsulot yuklanmoqda...</option>
                 </select>
-                <p id="selectedProductInfo" class="mt-1 text-xs text-slate-400"></p>
+                <p id="selectedProductInfo" class="mt-1 text-[11px] text-slate-400 font-medium"></p>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Soni</label>
-                <input type="number" id="quantity" value="1" min="1" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none">
+                <input type="number" id="quantity" value="1" min="1" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
             </div>
-            <div class="flex gap-2 pt-2">
-                <button type="button" onclick="closeModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm">Bekor qilish</button>
-                <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-xs">Yaratish</button>
+            <div class="flex gap-3 pt-2 pb-safe">
+                <button type="button" onclick="closeModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm cursor-pointer">Bekor qilish</button>
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-sm cursor-pointer">Yaratish</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- 2. Details Modal -->
-<div id="detailsModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+<div id="detailsModal" class="hidden fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50">
+    <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-5 sm:p-6 shadow-2xl">
         <div class="flex justify-between items-center mb-3">
-            <h3 class="font-bold text-slate-900">Buyurtma tafsilotlari</h3>
-            <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="font-bold text-slate-900 text-base sm:text-lg">Buyurtma tafsilotlari</h3>
+            <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-50 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="detailsContent" class="space-y-2 border-t border-slate-100 pt-3 text-sm"></div>
-        <button onclick="closeDetailsModal()" class="mt-4 w-full py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-medium">Yopish</button>
+        <div id="detailsContent" class="space-y-2 border-t border-slate-100 pt-3 text-xs sm:text-sm"></div>
+        <div class="pt-3 pb-safe">
+            <button onclick="closeDetailsModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-medium cursor-pointer">Yopish</button>
+        </div>
     </div>
 </div>
 
-
-<!-- LOGIKA VA DINAMIK INTEGRATSIYA -->
 <script>
     const API_BASE_URL = '/api/order';
-    let userId = 2; // Havfsizlik uchun pastda tokendan dinamik olinadi
+    let userId = 2;
     let availableProducts = [];
 
-    // Sahifa tayyor bo'lganda ishga tushadigan funksiyalar
+    // Sahifa to'liq yuklanganda ishga tushuvchi listener
     document.addEventListener('DOMContentLoaded', () => {
-        setupUserAndWebSocket();
-        loadProfileForOrder();
-        loadAvailableProducts();
-        loadOrders();
+        try {
+            setupUserAndWebSocket();
+            loadOrders();
+        } catch (e) {
+            console.error("Sahifa boshlang'ich yuklanishida xatolik:", e);
+        }
     });
 
-    // USER ID NI DINAMIK AJRATIB OLISH VA WEBSOCKETNI ISHGA TUSHIRISH
+    // Tarmoq so'rovlari uchun xavfsiz fetch wrapper (Fallback mexanizmi bilan)
+    async function safeFetch(url, options = {}) {
+        try {
+            if (typeof secureFetch === 'function') {
+                return await secureFetch(url, options);
+            }
+            const token = localStorage.getItem('accessToken');
+            options.headers = options.headers || {};
+            if (token) {
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
+            return await fetch(url, options);
+        } catch (err) {
+            console.error("safeFetch ichida uzilish yuz berdi:", err);
+            return null;
+        }
+    }
+
+    // Foydalanuvchi ma'lumotlarini o'qish va WebSocket ulanishini sozlash
     function setupUserAndWebSocket() {
         const token = localStorage.getItem('accessToken');
         if (!token) {
-            alert("Avtorizatsiyadan o'tilmagan! Tizimga qayta kiring.");
             window.location.href = '/login.html';
             return;
         }
@@ -221,111 +256,121 @@
             userId = storedUserId;
         }
 
-        document.getElementById('display-user-id').innerText = userId;
+        const displayEl = document.getElementById('display-user-id');
+        if (displayEl) displayEl.innerText = userId;
 
-        // WebSocket Ulanishi (Spring Boot config'ga mos ravishda)
-        const socket = new SockJS('/ws-ecommerce');
-        const stompClient = Stomp.over(socket);
-        stompClient.debug = null; // Konsolni keraksiz loglardan tozalash
+        if (typeof SockJS !== 'undefined' && typeof Stomp !== 'undefined') {
+            const socket = new SockJS('/ws-ecommerce');
+            const stompClient = Stomp.over(socket);
+            stompClient.debug = null;
 
-        // Handshake vaqtida tokenni headerda uzatamiz
-        const headers = { 'Authorization': 'Bearer ' + token };
+            stompClient.connect({ 'Authorization': 'Bearer ' + token }, function (frame) {
+                updateWSStatus("WS Ulandi", "success");
 
-        stompClient.connect(headers, function (frame) {
-            updateWSStatus("WS Ulandi", "success");
-
-            // Berilgan userId bo'yicha topikka obuna bo'lish
-            stompClient.subscribe('/topic/orders/' + userId, function (response) {
-                try {
-                    const message = JSON.parse(response.body);
-
-                    // Jonli bildirishnoma qutisini yangilash
-                    pushLiveNotification(message);
-
-                    // WebSocketdan xabar kelganda REST jadval avtomatik yangilanadi.
-                    loadOrders();
-                } catch (err) {
-                    console.error("Xabarni o'qishda xatolik:", err);
-                }
+                stompClient.subscribe('/topic/orders/' + userId, function (response) {
+                    try {
+                        const message = JSON.parse(response.body);
+                        pushLiveNotification(message);
+                        loadOrders();
+                    } catch (err) {
+                        console.error("Kelgan WebSocket xabarini dekodlashda xato:", err);
+                    }
+                });
+            }, function (error) {
+                updateWSStatus("WS Xatolik", "error");
             });
-        }, function (error) {
-            updateWSStatus("WS Xatolik", "error");
-        });
-    }
-
-    // WebSocket Ulanish statusini vizual ko'rsatish
-    function updateWSStatus(text, type) {
-        const textEl = document.getElementById('status-text');
-        const container = document.getElementById('status-container');
-        const ping = document.querySelector('.animate-ping');
-
-        textEl.innerText = text;
-        if (type === 'success') {
-            container.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold transition-colors";
-            if(ping) ping.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
         } else {
-            container.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold transition-colors";
-            if(ping) ping.className = "hidden";
+            console.warn("SockJS yoki Stomp topilmadi, websocket o'chirildi.");
+            updateWSStatus("WS Oflayn", "error");
         }
     }
 
-    // Live monitorga chiroyli xabar qo'shish funksiyasi
+    function updateWSStatus(text, type) {
+        const textEl = document.getElementById('status-text');
+        const container = document.getElementById('status-container');
+        const ping = document.getElementById('status-ping');
+
+        if(textEl) textEl.innerText = text;
+        if (!container) return;
+
+        if (type === 'success') {
+            container.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] sm:text-xs font-semibold transition-colors";
+            if(ping) ping.classList.remove('hidden');
+        } else {
+            container.className = "flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-[11px] sm:text-xs font-semibold transition-colors";
+            if(ping) ping.classList.add('hidden');
+        }
+    }
+
     function pushLiveNotification(msg) {
-        document.getElementById('empty-state').classList.add('hidden');
+        const emptyState = document.getElementById('empty-state');
         const container = document.getElementById('notifications');
-        container.classList.remove('hidden');
+
+        if(emptyState) emptyState.classList.add('hidden');
+        if(container) container.classList.remove('hidden');
 
         const li = document.createElement('li');
-        li.className = "animate-slide-in flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-xl hover:shadow-xs transition-all";
+        li.className = "animate-slide-in flex items-center justify-between p-2.5 sm:p-3 bg-slate-50 border border-slate-100 rounded-xl transition-all";
 
         const orderId = msg.orderId || msg.id || 'Noma\'lum';
         const status = msg.status || msg.orderStatus || 'PENDING';
 
         li.innerHTML = `
-                <div class="flex items-center gap-2">
-                    <div class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs"><i class="fa-solid fa-bell"></i></div>
-                    <div>
-                        <p class="font-bold text-xs text-slate-700">Buyurtma #${orderId}</p>
-                        <p class="text-[10px] text-slate-400">Holat o'zgardi</p>
-                    </div>
+            <div class="flex items-center gap-2 overflow-hidden mr-2">
+                <div class="p-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs shrink-0"><i class="fa-solid fa-bell"></i></div>
+                <div class="overflow-hidden">
+                    <p class="font-bold text-xs text-slate-700 truncate">Buyurtma #${orderId}</p>
+                    <p class="text-[10px] text-slate-400 truncate">Holat o'zgardi</p>
                 </div>
-                ${getStatusBadgeStyle(status)}
-            `;
-        container.insertBefore(li, container.firstChild);
-    }
-
-    // Badge stillarini aniqlash yordamchisi
-    function getStatusBadgeStyle(status) {
-        const s = status.toLowerCase();
-        let cls = "text-[10px] font-bold px-2 py-0.5 rounded border ";
-        if(s.includes('pending')) return `<span class="${cls} bg-amber-50 text-amber-700 border-amber-200">Kutilmoqda</span>`;
-        if(s.includes('complete') || s.includes('deliver')) return `<span class="${cls} bg-emerald-50 text-emerald-700 border-emerald-200">Yuborildi</span>`;
-        if(s.includes('cancel')) return `<span class="${cls} bg-rose-50 text-rose-700 border-rose-200">Bekor bo'ldi</span>`;
-        return `<span class="${cls} bg-slate-50 text-slate-600 border-slate-200">${status}</span>`;
-    }
-
-
-    // -------------------------------------------------------------
-    // REST API CRUD LOGIKALARI (secureFetch orqali auth.js ishlatadi)
-    // -------------------------------------------------------------
-
-    // 1. GET ALL
-    async function loadOrders() {
-        try {
-            const response = await secureFetch(`${API_BASE_URL}/my`);
-            if (response && response.ok) {
-                const orders = await response.json();
-                renderOrdersTable(orders);
-            }
-        } catch (error) {
-            document.getElementById('ordersTableBody').innerHTML = `<tr><td colspan="5" class="py-6 text-center text-red-500 font-semibold">Ma'lumot yuklashda ulanish xatosi.</td></tr>`;
+            </div>
+            <div class="shrink-0">${getStatusBadgeStyle(status)}</div>
+        `;
+        if(container && container.firstChild) {
+            container.insertBefore(li, container.firstChild);
+        } else if (container) {
+            container.appendChild(li);
         }
     }
 
-    function renderOrdersTable(orders) {
+    function getStatusBadgeStyle(status) {
+        if (!status) status = 'PENDING';
+        const s = status.toLowerCase();
+        let cls = "text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider ";
+        if(s.includes('pending')) return `<span class="${cls} bg-amber-50 text-amber-700 border-amber-200">PENDING</span>`;
+        if(s.includes('complete') || s.includes('deliver')) return `<span class="${cls} bg-emerald-50 text-emerald-700 border-emerald-200">SUCCESS</span>`;
+        if(s.includes('cancel')) return `<span class="${cls} bg-rose-50 text-rose-700 border-rose-200">CANCEL</span>`;
+        return `<span class="${cls} bg-slate-50 text-slate-600 border-slate-200">${status}</span>`;
+    }
+
+    // Backend REST API orqali buyurtmalarni yuklash
+    async function loadOrders() {
+        try {
+            const response = await safeFetch(`${API_BASE_URL}/my`);
+            if (response && response.ok) {
+                const orders = await response.json();
+                // Agar PageImpl yoki Pagination formatida kelsa content'ni ajratib oladi
+                const ordersList = Array.isArray(orders) ? orders : (orders.content || []);
+                renderOrdersTableAndCards(ordersList);
+            } else {
+                throw new Error(response ? `Server kodi: ${response.status}` : "Tarmoq xatosi");
+            }
+        } catch (error) {
+            console.error("loadOrders funksiyasida xatolik:", error);
+            document.getElementById('ordersTableBody').innerHTML = `<tr><td colspan="5" class="py-6 text-center text-red-500 font-semibold text-xs">Ma'lumotlarni serverdan yuklab bo'lmadi.</td></tr>`;
+            document.getElementById('ordersMobileCards').innerHTML = `<div class="p-4 text-center text-red-500 font-medium text-xs">Ulanish muvaffaqiyatsiz tugadi.</div>`;
+        }
+    }
+
+    // UI jadval va mobil kartalarni chizish funksiyasi
+    function renderOrdersTableAndCards(orders) {
         const tbody = document.getElementById('ordersTableBody');
+        const cardsContainer = document.getElementById('ordersMobileCards');
+
+        if (!tbody || !cardsContainer) return;
+
         if (!orders || orders.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-slate-400">Hech qanday buyurtma topilmadi.</td></tr>`;
+            cardsContainer.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Hech qanday buyurtma topilmadi.</div>`;
             return;
         }
 
@@ -334,62 +379,95 @@
                 (order.status === 'COMPLETED' || order.status === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200');
 
             return `
-                    <tr class="hover:bg-slate-50/50 transition-colors">
-                        <td class="py-3.5 px-5 font-bold text-slate-900">#${order.id}</td>
-                        <td class="py-3.5 px-5 font-medium text-slate-600">${order.customerEmail || 'Noma\'lum'}</td>
-                        <td class="py-3.5 px-5 font-extrabold text-slate-900">$${order.totalAmount || 0}</td>
-                        <td class="py-3.5 px-5">
-                            <select onchange="updateOrderStatus(${order.id}, this.value)" class="px-2 py-1 text-xs font-bold rounded-lg border ${sColor} outline-none cursor-pointer">
-                                <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
-                                <option value="COMPLETED" ${order.status === 'COMPLETED' ? 'selected' : ''}>COMPLETED</option>
-                                <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
-                                <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
-                            </select>
-                        </td>
-                        <td class="py-3.5 px-5 text-right">
-                            <div class="flex justify-end gap-1">
-                                <button onclick="viewOrderDetails(${order.id})" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-all"><i class="fa-solid fa-eye text-xs"></i></button>
-                                <button onclick="deleteOrder(${order.id})" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                <tr class="hover:bg-slate-50/50 transition-colors">
+                    <td class="py-3.5 px-5 font-bold text-slate-900">#${order.id}</td>
+                    <td class="py-3.5 px-5 font-medium text-slate-600">${escapeHtml(order.customerEmail || 'Noma\'lum')}</td>
+                    <td class="py-3.5 px-5 font-extrabold text-slate-900">$${order.totalAmount || 0}</td>
+                    <td class="py-3.5 px-5">
+                        <select onchange="updateOrderStatus(${order.id}, this.value)" class="px-2 py-1 text-xs font-bold rounded-lg border ${sColor} outline-none cursor-pointer bg-white">
+                            <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
+                            <option value="COMPLETED" ${order.status === 'COMPLETED' ? 'selected' : ''}>COMPLETED</option>
+                            <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
+                            <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+                        </select>
+                    </td>
+                    <td class="py-3.5 px-5 text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="viewOrderDetails(${order.id})" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-all cursor-pointer"><i class="fa-solid fa-eye text-xs"></i></button>
+                            <button onclick="deleteOrder(${order.id})" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all cursor-pointer"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        cardsContainer.innerHTML = orders.map(order => {
+            let sColor = order.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                (order.status === 'COMPLETED' || order.status === 'DELIVERED' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200');
+
+            return `
+                <div class="bg-white border border-slate-100 rounded-xl p-4 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="font-black text-sm text-slate-900">Buyurtma #${order.id}</span>
+                        <span class="font-extrabold text-base text-blue-600">$${order.totalAmount || 0}</span>
+                    </div>
+                    <div class="text-xs text-slate-500 truncate">
+                        <span class="text-slate-400">Mijoz:</span> ${escapeHtml(order.customerEmail || 'Noma\'lum')}
+                    </div>
+                    <div class="flex items-center justify-between gap-4 pt-1 border-t border-slate-50">
+                        <select onchange="updateOrderStatus(${order.id}, this.value)" class="flex-1 px-3 py-1.5 text-xs font-bold rounded-lg border ${sColor} outline-none cursor-pointer bg-white">
+                            <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
+                            <option value="COMPLETED" ${order.status === 'COMPLETED' ? 'selected' : ''}>COMPLETED</option>
+                            <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
+                            <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+                        </select>
+                        <div class="flex gap-1 shrink-0">
+                            <button onclick="viewOrderDetails(${order.id})" class="p-2 text-slate-500 hover:text-blue-600 bg-slate-50 rounded-lg active:bg-slate-100 cursor-pointer"><i class="fa-solid fa-eye text-xs"></i></button>
+                            <button onclick="deleteOrder(${order.id})" class="p-2 text-slate-400 hover:text-red-600 bg-slate-50 rounded-lg active:bg-slate-100 cursor-pointer"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
         }).join('');
     }
 
-    // 2. POST CREATE
-    document.getElementById('createOrderForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const orderRequest = {
-            customerName: document.getElementById('customerName').value.trim(),
-            customerEmail: document.getElementById('customerEmail').value.trim(),
-            items: [
-                {
-                    productId: parseInt(document.getElementById('productId').value),
-                    quantity: parseInt(document.getElementById('quantity').value)
+    // Yangi buyurtma formasini yuborish (Submit handle)
+    const createForm = document.getElementById('createOrderForm');
+    if (createForm) {
+        createForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            try {
+                const orderRequest = {
+                    customerName: document.getElementById('customerName').value.trim(),
+                    customerEmail: document.getElementById('customerEmail').value.trim(),
+                    items: [{
+                        productId: parseInt(document.getElementById('productId').value),
+                        quantity: parseInt(document.getElementById('quantity').value)
+                    }]
+                };
+
+                const response = await safeFetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderRequest)
+                });
+
+                if (response && response.ok) {
+                    closeModal();
+                    document.getElementById('createOrderForm').reset();
+                    await loadAvailableProducts();
+                    loadOrders();
+                } else {
+                    alert('Yaratishda xatolik yuz berdi.');
                 }
-            ]
-        };
-
-        const response = await secureFetch(API_BASE_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderRequest)
+            } catch (err) {
+                console.error("Formani yuborishda xato:", err);
+            }
         });
+    }
 
-        if (response && response.ok) {
-            closeModal();
-            document.getElementById('createOrderForm').reset();
-            await loadAvailableProducts();
-            loadOrders();
-        } else {
-            alert('Yaratishda xatolik yuz berdi.');
-        }
-    });
-
-    // 3. PUT UPDATE STATUS
     async function updateOrderStatus(orderId, newStatus) {
-        const response = await secureFetch(`${API_BASE_URL}/${orderId}/status?status=${newStatus}`, { method: 'PUT' });
+        const response = await safeFetch(`${API_BASE_URL}/${orderId}/status?status=${newStatus}`, { method: 'PUT' });
         if (response && response.ok) {
             loadOrders();
         } else {
@@ -397,76 +475,74 @@
         }
     }
 
-    // 4. DELETE ORDER
     async function deleteOrder(orderId) {
         if (!confirm(`Order #${orderId} o'chirilsinmi?`)) return;
-        const response = await secureFetch(`${API_BASE_URL}/${orderId}`, { method: 'DELETE' });
+        const response = await safeFetch(`${API_BASE_URL}/${orderId}`, { method: 'DELETE' });
         if (response && response.ok) {
             loadOrders();
         }
     }
 
-    // 5. SEARCH BY EMAIL
     async function searchByEmail() {
         const email = document.getElementById('searchEmail').value.trim();
         if (!email) { loadOrders(); return; }
-        const response = await secureFetch(`${API_BASE_URL}/customer/${email}`);
+        const response = await safeFetch(`${API_BASE_URL}/customer/${email}`);
         if (response && response.ok) {
-            renderOrdersTable(await response.json());
+            const resData = await response.json();
+            renderOrdersTableAndCards(Array.isArray(resData) ? resData : []);
         }
     }
 
-    // 6. VIEW DETAILS
     async function viewOrderDetails(orderId) {
-        const response = await secureFetch(`${API_BASE_URL}/${orderId}`);
+        const response = await safeFetch(`${API_BASE_URL}/${orderId}`);
         if (response && response.ok) {
             const order = await response.json();
             document.getElementById('detailsContent').innerHTML = `
-                    <div class="flex justify-between py-1 border-b border-slate-100"><strong>ID:</strong> <span>#${order.id}</span></div>
-                    <div class="flex justify-between py-1 border-b border-slate-100"><strong>Mijoz:</strong> <span>${order.customerEmail}</span></div>
-                    <div class="flex justify-between py-1 border-b border-slate-100"><strong>Jami summa:</strong> <span class="font-bold text-indigo-600">$${order.totalAmount}</span></div>
-                    <div class="flex justify-between py-1 border-b border-slate-100"><strong>Status:</strong> <span class="uppercase font-semibold">${order.status}</span></div>
-                `;
+                <div class="flex justify-between py-1.5 border-b border-slate-50"><strong>ID:</strong> <span>#${order.id}</span></div>
+                <div class="flex justify-between py-1.5 border-b border-slate-50"><strong>Mijoz:</strong> <span class="truncate max-w-[200px]">${escapeHtml(order.customerEmail)}</span></div>
+                <div class="flex justify-between py-1.5 border-b border-slate-50"><strong>Jami summa:</strong> <span class="font-bold text-blue-600">$${order.totalAmount}</span></div>
+                <div class="flex justify-between py-1.5 border-b border-slate-50"><strong>Status:</strong> <span class="uppercase font-semibold">${order.status}</span></div>
+            `;
             openDetailsModal();
         }
     }
 
-    // Yordamchi oyna ochish/yopish boshqaruvlari
     async function loadProfileForOrder() {
         try {
-            const response = await secureFetch('/api/users/me');
+            const response = await safeFetch('/api/users/me');
             if (response && response.ok) {
                 const user = await response.json();
-                document.getElementById('customerName').value = user.fullName || user.username || '';
+                const nameInput = document.getElementById('customerName');
+                if(nameInput) nameInput.value = user.fullName || user.username || '';
             }
         } catch (error) {
-            console.warn('Profil maʼlumotlari olinmadi:', error);
+            console.warn('Profil yuklash muvaffaqiyatsiz:', error);
         }
     }
 
     async function loadAvailableProducts() {
         const select = document.getElementById('productId');
         const info = document.getElementById('selectedProductInfo');
+        if (!select || !info) return;
+
         select.innerHTML = `<option value="">Mahsulot yuklanmoqda...</option>`;
         info.innerText = '';
 
         try {
-            const response = await secureFetch('/api/products?size=100');
-            if (!response || !response.ok) {
-                throw new Error('Mahsulotlar yuklanmadi');
-            }
+            const response = await safeFetch('/api/products?size=100');
+            if (!response || !response.ok) throw new Error('Mahsulotlar ro\'yxatini olib bo\'lmadi');
 
             const page = await response.json();
             availableProducts = (page.content || []).filter(product => product.isActive !== false && product.stock > 0);
 
             if (availableProducts.length === 0) {
                 select.innerHTML = `<option value="">Avval mahsulot qo'shing</option>`;
-                info.innerText = "Mahsulotlar ro'yxati bo'sh yoki omborda soni 0.";
+                info.innerText = "Sotuvda faol mahsulot mavjud emas.";
                 return;
             }
 
             select.innerHTML = `<option value="">Mahsulot tanlang</option>` + availableProducts.map(product =>
-                `<option value="${product.id}">${product.name} | ${product.category} | $${product.price} | ${product.stock} dona</option>`
+                `<option value="${product.id}">${escapeHtml(product.name)} | $${product.price} (${product.stock} ta)</option>`
             ).join('');
         } catch (error) {
             select.innerHTML = `<option value="">Mahsulotlar yuklanmadi</option>`;
@@ -474,25 +550,48 @@
         }
     }
 
-    document.getElementById('productId').addEventListener('change', function() {
-        const product = availableProducts.find(item => String(item.id) === this.value);
-        const info = document.getElementById('selectedProductInfo');
-        if (!product) {
-            info.innerText = '';
-            return;
-        }
-        info.innerText = `${product.name}: narx $${product.price}, omborda ${product.stock} dona`;
-        document.getElementById('quantity').max = product.stock;
-    });
-
-    function openModal() {
-        document.getElementById('orderModal').classList.remove('hidden');
-        loadProfileForOrder();
-        loadAvailableProducts();
+    const prodSelect = document.getElementById('productId');
+    if (prodSelect) {
+        prodSelect.addEventListener('change', function() {
+            const product = availableProducts.find(item => String(item.id) === this.value);
+            const info = document.getElementById('selectedProductInfo');
+            if (!info) return;
+            if (!product) { info.innerText = ''; return; }
+            info.innerText = `${product.name}: narx $${product.price}, omborda ${product.stock} dona`;
+            const qtyInput = document.getElementById('quantity');
+            if(qtyInput) qtyInput.max = product.stock;
+        });
     }
-    function closeModal() { document.getElementById('orderModal').classList.add('hidden'); }
-    function openDetailsModal() { document.getElementById('detailsModal').classList.remove('hidden'); }
-    function closeDetailsModal() { document.getElementById('detailsModal').classList.add('hidden'); }
+
+    // MODAL WINDOW EKOSISTEMASI (GLOBAL SCOPE'DA TO'LIQ ISHLAYDI)
+    function openModal() {
+        const modal = document.getElementById('orderModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            loadProfileForOrder();
+            loadAvailableProducts();
+        }
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('orderModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function openDetailsModal() {
+        const modal = document.getElementById('detailsModal');
+        if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeDetailsModal() {
+        const modal = document.getElementById('detailsModal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
 </script>
 </body>
 </html>

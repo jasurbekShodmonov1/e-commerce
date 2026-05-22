@@ -2,47 +2,88 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mening buyurtmalarim - E-Commerce</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="/js/auth.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans">
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans pb-20 sm:pb-0">
 
 <nav class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <a href="/product.html" class="flex items-center gap-2">
             <i class="fa-solid fa-bag-shopping text-blue-600 text-xl"></i>
             <span class="font-bold text-lg text-slate-800 tracking-tight">E-Store</span>
         </a>
 
-        <div class="flex items-center gap-5">
-            <a href="/product.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Mahsulotlar</a>
-            <a href="/order.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Yangi buyurtma</a>
-            <a href="/chat.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Chat</a>
-            <a href="/user.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Profil</a>
-            <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all">
+        <div class="hidden md:flex items-center gap-6">
+            <a href="/product.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-box text-lg text-slate-400"></i>
+                <span>Mahsulotlar</span>
+            </a>
+            <a href="/order.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-cart-shopping text-lg text-slate-400"></i>
+                <span>Yangi buyurtma</span>
+            </a>
+            <a href="/chat.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-comments text-lg text-slate-400"></i>
+                <span>Chat</span>
+            </a>
+            <a href="/user.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-circle-user text-lg text-slate-400"></i>
+                <span>Profil</span>
+            </a>
+            <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer">
                 Chiqish
+            </button>
+        </div>
+
+        <div class="flex md:hidden items-center gap-3">
+            <a href="/chat.html" class="p-2 text-slate-600 hover:text-blue-600">
+                <i class="fa-solid fa-comments text-xl"></i>
+            </a>
+            <button onclick="handleLogout()" class="p-2 text-red-600">
+                <i class="fa-solid fa-right-from-bracket text-lg"></i>
             </button>
         </div>
     </div>
 </nav>
 
-<main class="max-w-7xl mx-auto px-6 py-8">
-    <section class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+<div class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-100 shadow-lg z-40 flex justify-around items-center h-16 pb-safe">
+    <a href="/product.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-box text-lg"></i>
+        <span class="text-[10px] font-medium">Do'kon</span>
+    </a>
+    <a href="/order.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-cart-shopping text-lg"></i>
+        <span class="text-[10px] font-medium">Savat</span>
+    </a>
+    <a href="/my-orders.html" class="flex flex-col items-center gap-0.5 text-blue-600">
+        <i class="fa-solid fa-receipt text-lg"></i>
+        <span class="text-[10px] font-bold">Buyurtmalar</span>
+    </a>
+    <a href="/user.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-circle-user text-lg"></i>
+        <span class="text-[10px] font-medium">Profil</span>
+    </a>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <section class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Mening buyurtmalarim</h1>
-            <p class="text-slate-500 text-sm mt-1">Faqat joriy profilingiz orqali yaratilgan buyurtmalar.</p>
+            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Mening buyurtmalarim</h1>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Faqat joriy profilingiz orqali yaratilgan buyurtmalar.</p>
         </div>
-        <a href="/order.html" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-sm">
+        <a href="/order.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all active:scale-98">
             <i class="fa-solid fa-plus text-xs"></i>
-            Yangi buyurtma
+            <span>Yanti buyurtma</span>
         </a>
     </section>
 
-    <section id="ordersContainer" class="space-y-4">
-        <div class="py-16 text-center text-slate-400 bg-white border border-slate-100 rounded-2xl">
+    <section id="ordersContainer" class="space-y-4sm:space-y-6">
+        <div class="py-20 text-center text-slate-400 bg-white border border-slate-100 rounded-2xl shadow-sm">
             <i class="fa-solid fa-spinner animate-spin text-2xl mb-3 text-blue-500 block"></i>
             Buyurtmalar yuklanmoqda...
         </div>
@@ -50,79 +91,108 @@
 </main>
 
 <script>
+    // secureFetch mavjudligini xavfsiz tekshiruvchi wrapper funksiyasi
+    async function safeFetch(url, options = {}) {
+        if (typeof secureFetch === 'function') {
+            return secureFetch(url, options);
+        }
+        const token = localStorage.getItem('accessToken');
+        options.headers = options.headers || {};
+        if (token) {
+            options.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return fetch(url, options);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         if (!localStorage.getItem('accessToken')) {
             window.location.href = '/login.html';
             return;
         }
-
         loadMyOrders();
     });
 
+    // Serverdan buyurtmalarni yuklash
     async function loadMyOrders() {
         const container = document.getElementById('ordersContainer');
         try {
-            const response = await secureFetch('/api/order/my');
+            const response = await safeFetch('/api/order/my');
             if (response && response.ok) {
                 renderOrders(await response.json());
                 return;
             }
-
-            container.innerHTML = `<div class="py-16 text-center text-red-500 bg-white border border-red-100 rounded-2xl">Buyurtmalarni yuklab bo'lmadi.</div>`;
+            container.innerHTML = `<div class="py-16 text-center text-red-500 bg-white border border-red-100 rounded-2xl text-sm font-medium">Buyurtmalarni yuklab bo'lmadi.</div>`;
         } catch (error) {
-            container.innerHTML = `<div class="py-16 text-center text-red-500 bg-white border border-red-100 rounded-2xl">Server bilan aloqa uzildi.</div>`;
+            container.innerHTML = `<div class="py-16 text-center text-red-500 bg-white border border-red-100 rounded-2xl text-sm font-medium">Server bilan aloqa uzildi.</div>`;
         }
     }
 
+    // Buyurtmalarni chizish
     function renderOrders(orders) {
         const container = document.getElementById('ordersContainer');
         if (!orders || orders.length === 0) {
             container.innerHTML = `
-                <div class="py-16 text-center bg-white border border-slate-100 rounded-2xl">
-                    <i class="fa-solid fa-receipt text-3xl text-slate-300 mb-3"></i>
-                    <p class="font-semibold text-slate-700">Hali buyurtma yo'q</p>
-                    <p class="text-sm text-slate-400 mt-1">Yangi buyurtma yaratish uchun yuqoridagi tugmadan foydalaning.</p>
+                <div class="py-16 px-4 text-center bg-white border border-slate-100 rounded-2xl shadow-sm">
+                    <i class="fa-solid fa-receipt text-4xl text-slate-200 mb-3 block"></i>
+                    <p class="font-bold text-slate-700 text-sm sm:text-base">Hali buyurtma yo'q</p>
+                    <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Sizda hozircha hech qanday buyurtma mavjud emas. Xarid qilishni boshlang!</p>
                 </div>
             `;
             return;
         }
 
         container.innerHTML = orders.map(order => `
-            <article class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-                <div class="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-slate-100">
+            <article class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden transition-all hover:shadow-md">
+
+                <div class="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 bg-slate-50/20">
                     <div>
-                        <h2 class="text-lg font-bold text-slate-900">Buyurtma #${order.id}</h2>
-                        <p class="text-sm text-slate-500">${order.orderDate ? new Date(order.orderDate).toLocaleString() : ''}</p>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-900">Buyurtma #${order.id}</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">${order.orderDate ? new Date(order.orderDate).toLocaleString('uz-UZ') : ''}</p>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-0 pt-2 sm:pt-0 border-slate-50">
                         ${statusBadge(order.status)}
-                        <span class="text-lg font-black text-slate-900">$${order.totalAmount || 0}</span>
+                        <span class="text-base sm:text-lg font-black text-slate-900 tracking-tight">$${order.totalAmount || 0}</span>
                     </div>
                 </div>
-                <div class="p-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-sm">
-                        <div><span class="text-slate-400">Mijoz:</span> <span class="font-semibold">${order.customerName || '-'}</span></div>
-                        <div><span class="text-slate-400">Email:</span> <span class="font-semibold">${order.customerEmail || '-'}</span></div>
+
+                <div class="p-4 sm:p-5 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm bg-slate-50/50 p-3 rounded-xl border border-slate-100/60">
+                        <div><span class="text-slate-400 font-medium">Mijoz:</span> <span class="font-semibold text-slate-700">${escapeHtml(order.customerName || '-')}</span></div>
+                        <div><span class="text-slate-400 font-medium">Email:</span> <span class="font-semibold text-slate-700 truncate block sm:inline">${escapeHtml(order.customerEmail || '-')}</span></div>
                     </div>
-                    <div class="overflow-x-auto">
+
+                    <div class="block sm:hidden space-y-2.5">
+                        <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Mahsulotlar</div>
+                        ${(order.items || []).map(item => `
+                            <div class="flex justify-between items-start text-xs border-b border-slate-50 pb-2 last:border-0 last:pb-0">
+                                <div class="pr-2">
+                                    <div class="font-bold text-slate-800">${escapeHtml(item.productName || 'Mahsulot #' + item.productId)}</div>
+                                    <div class="text-slate-400 mt-0.5">${item.quantity} x $${item.unitPrice}</div>
+                                </div>
+                                <div class="font-black text-slate-900 shrink-0">$${item.totalPrice}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="hidden sm:block overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
-                            <tr class="text-left text-xs uppercase tracking-wider text-slate-400 border-b border-slate-100">
-                                <th class="py-2">Mahsulot</th>
-                                <th class="py-2">Soni</th>
-                                <th class="py-2">Narx</th>
-                                <th class="py-2 text-right">Jami</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            ${(order.items || []).map(item => `
-                                <tr class="border-b border-slate-50 last:border-b-0">
-                                    <td class="py-2 font-medium text-slate-700">${item.productName || item.productId}</td>
-                                    <td class="py-2">${item.quantity}</td>
-                                    <td class="py-2">$${item.unitPrice}</td>
-                                    <td class="py-2 text-right font-bold">$${item.totalPrice}</td>
+                                <tr class="text-left text-xs uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                                    <th class="py-2 font-bold">Mahsulot</th>
+                                    <th class="py-2 font-bold">Soni</th>
+                                    <th class="py-2 font-bold">Narx</th>
+                                    <th class="py-2 text-right font-bold">Jami</th>
                                 </tr>
-                            `).join('')}
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                ${(order.items || []).map(item => `
+                                    <tr>
+                                        <td class="py-3 font-semibold text-slate-700">${escapeHtml(item.productName || 'Mahsulot #' + item.productId)}</td>
+                                        <td class="py-3 text-slate-600">${item.quantity} ta</td>
+                                        <td class="py-3 text-slate-600">$${item.unitPrice}</td>
+                                        <td class="py-3 text-right font-bold text-slate-900">$${item.totalPrice}</td>
+                                    </tr>
+                                `).join('')}
                             </tbody>
                         </table>
                     </div>
@@ -131,15 +201,23 @@
         `).join('');
     }
 
+    // Buyurtma holatiga qarab chiroyli badge ranglarini qaytarish
     function statusBadge(status) {
         const value = status || 'PENDING';
         const lower = value.toLowerCase();
         let cls = 'bg-slate-50 text-slate-700 border-slate-200';
-        if (lower.includes('pending')) cls = 'bg-amber-50 text-amber-700 border-amber-200';
-        if (lower.includes('complete') || lower.includes('deliver')) cls = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-        if (lower.includes('cancel')) cls = 'bg-red-50 text-red-700 border-red-200';
 
-        return `<span class="px-2.5 py-1 rounded-full border text-xs font-bold ${cls}">${value}</span>`;
+        if (lower.includes('pending')) cls = 'bg-amber-50 text-amber-700 border-amber-200';
+        if (lower.includes('complete') || lower.includes('deliver') || lower.includes('success')) cls = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        if (lower.includes('cancel') || lower.includes('reject')) cls = 'bg-red-50 text-red-700 border-red-200';
+
+        return `<span class="px-2.5 py-0.5 sm:py-1 rounded-full border text-[10px] sm:text-xs font-bold tracking-wide uppercase ${cls}">${value}</span>`;
+    }
+
+    // Xavfsizlik uchun HTML belgilarini tozalash funksiyasi
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 </script>
 </body>

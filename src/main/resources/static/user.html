@@ -2,65 +2,94 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Profil - E-Commerce</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="/js/auth.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans">
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans pb-20 md:pb-0">
 
 <nav class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <a href="/product.html" class="flex items-center gap-2">
             <i class="fa-solid fa-bag-shopping text-blue-600 text-xl"></i>
-            <span class="font-bold text-lg text-slate-800 tracking-tight">E-Store</span>
+            <span class="font-bold text-base sm:text-lg text-slate-800 tracking-tight">E-Store</span>
         </a>
 
-        <div class="flex items-center gap-5">
-            <a href="/product.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Mahsulotlar</a>
-            <a href="/my-orders.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Mening buyurtmalarim</a>
-            <a href="/chat.html" class="text-sm font-medium text-slate-600 hover:text-blue-600">Chat</a>
-            <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all">
-                Chiqish
+        <div class="hidden md:flex items-center gap-5">
+            <a href="/product.html" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Mahsulotlar</a>
+            <a href="/order.html" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Buyurtma berish</a>
+            <a href="/my-orders.html" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Mening buyurtmalarim</a>
+            <a href="/chat.html" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Chat</a>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer">
+                Chiqish <i class="fa-solid fa-arrow-right-from-bracket ml-1 text-[10px]"></i>
             </button>
         </div>
     </div>
 </nav>
 
-<main class="max-w-4xl mx-auto px-6 py-8">
+<div class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-100 shadow-lg z-40 flex justify-around items-center h-16 pb-safe">
+    <a href="/product.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-box text-lg"></i>
+        <span class="text-[10px] font-medium">Do'kon</span>
+    </a>
+    <a href="/order.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-cart-shopping text-lg"></i>
+        <span class="text-[10px] font-medium">Savat</span>
+    </a>
+    <a href="/my-orders.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-receipt text-lg"></i>
+        <span class="text-[10px] font-medium">Buyurtmalar</span>
+    </a>
+    <a href="/chat.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-comments text-lg"></i>
+        <span class="text-[10px] font-medium">Chat</span>
+    </a>
+    <a href="/user.html" class="flex flex-col items-center gap-0.5 text-blue-600">
+        <i class="fa-solid fa-user text-lg"></i>
+        <span class="text-[10px] font-bold">Profil</span>
+    </a>
+</div>
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
     <section class="mb-6">
-        <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Profil</h1>
-        <p class="text-slate-500 text-sm mt-1">Hisobingiz bo'yicha asosiy ma'lumotlar.</p>
+        <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Profil</h1>
+        <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Hisobingiz bo'yicha asosiy ma'lumotlar.</p>
     </section>
 
     <section class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                <i class="fa-solid fa-user text-2xl"></i>
+
+        <div class="p-5 sm:p-6 border-b border-slate-100 flex items-center gap-4">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 shadow-xs">
+                <i class="fa-solid fa-user text-xl sm:text-2xl"></i>
             </div>
-            <div>
-                <h2 id="profileName" class="text-lg font-bold text-slate-900">Yuklanmoqda...</h2>
-                <p id="profileUsername" class="text-sm text-slate-500">...</p>
+            <div class="overflow-hidden">
+                <h2 id="profileName" class="text-base sm:text-lg font-bold text-slate-900 truncate">Yuklanmoqda...</h2>
+                <p id="profileUsername" class="text-xs sm:text-sm text-slate-400 truncate">...</p>
             </div>
         </div>
 
         <dl class="divide-y divide-slate-100">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
-                <dt class="text-sm font-semibold text-slate-500">User ID</dt>
-                <dd id="profileId" class="sm:col-span-2 text-sm font-medium text-slate-900">...</dd>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 px-5 sm:px-6 py-3.5 sm:py-4">
+                <dt class="text-xs sm:text-sm font-semibold text-slate-400 sm:text-slate-500">User ID</dt>
+                <dd id="profileId" class="sm:col-span-2 text-xs sm:text-sm font-bold text-slate-900">...</dd>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
-                <dt class="text-sm font-semibold text-slate-500">Username</dt>
-                <dd id="profileUsernameRow" class="sm:col-span-2 text-sm font-medium text-slate-900">...</dd>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 px-5 sm:px-6 py-3.5 sm:py-4">
+                <dt class="text-xs sm:text-sm font-semibold text-slate-400 sm:text-slate-500">Username</dt>
+                <dd id="profileUsernameRow" class="sm:col-span-2 text-xs sm:text-sm font-medium text-slate-700">...</dd>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
-                <dt class="text-sm font-semibold text-slate-500">Role</dt>
-                <dd id="profileRole" class="sm:col-span-2 text-sm font-medium text-slate-900">...</dd>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 px-5 sm:px-6 py-3.5 sm:py-4">
+                <dt class="text-xs sm:text-sm font-semibold text-slate-400 sm:text-slate-500">Huquqlar (Role)</dt>
+                <dd id="profileRole" class="sm:col-span-2 text-xs sm:text-sm font-bold text-emerald-700 bg-emerald-50/60 border border-emerald-100 rounded-lg px-2 py-0.5 inline-block w-fit uppercase tracking-wider">...</dd>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 px-6 py-4">
-                <dt class="text-sm font-semibold text-slate-500">Yaratilgan vaqt</dt>
-                <dd id="profileCreatedAt" class="sm:col-span-2 text-sm font-medium text-slate-900">...</dd>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 px-5 sm:px-6 py-3.5 sm:py-4">
+                <dt class="text-xs sm:text-sm font-semibold text-slate-400 sm:text-slate-500">Yaratilgan vaqt</dt>
+                <dd id="profileCreatedAt" class="sm:col-span-2 text-xs sm:text-sm font-medium text-slate-700">...</dd>
             </div>
         </dl>
     </section>
@@ -68,27 +97,32 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Avtorizatsiya tekshiruvi
         if (!localStorage.getItem('accessToken')) {
             window.location.href = '/login.html';
             return;
         }
-
         loadProfile();
     });
 
+    // Profil ma'lumotlarini yuklash
     async function loadProfile() {
         try {
+            // auth.js faylingizdagi secureFetch ishlatiladi
             const response = await secureFetch('/api/users/me');
             if (response && response.ok) {
-                renderProfile(await response.json());
+                const userData = await response.json();
+                renderProfile(userData);
                 return;
             }
         } catch (error) {
-            console.error('Profilni yuklashda xatolik:', error);
+            console.error('Profilni API orqali yuklashda xatolik:', error);
         }
 
+        // Tarmoqda xatolik bo'lsa yoki API'da muammo bo'lsa, localStorage'dan zaxira ma'lumotlarni chiqaradi
         renderProfile({
             userId: localStorage.getItem('userId'),
+            id: localStorage.getItem('userId'),
             fullName: localStorage.getItem('username'),
             username: localStorage.getItem('username'),
             role: localStorage.getItem('role'),
@@ -96,13 +130,35 @@
         });
     }
 
+    // Ma'lumotlarni HTML ga xavfsiz joylashtirish
     function renderProfile(user) {
-        document.getElementById('profileName').innerText = user.fullName || user.username || 'Foydalanuvchi';
-        document.getElementById('profileUsername').innerText = user.username ? '@' + user.username : '';
-        document.getElementById('profileId').innerText = user.userId || '-';
-        document.getElementById('profileUsernameRow').innerText = user.username || '-';
-        document.getElementById('profileRole').innerText = user.role || '-';
-        document.getElementById('profileCreatedAt').innerText = user.createdAt ? new Date(user.createdAt).toLocaleString() : '-';
+        const uId = user.userId || user.id || localStorage.getItem('userId') || '-';
+        const uName = user.username || localStorage.getItem('username') || '-';
+        const fName = user.fullName || uName || 'Foydalanuvchi';
+        const uRole = user.role || localStorage.getItem('role') || 'USER';
+
+        document.getElementById('profileName').innerText = escapeHtml(fName);
+        document.getElementById('profileUsername').innerText = uName !== '-' ? '@' + escapeHtml(uName) : '';
+        document.getElementById('profileId').innerText = '#' + escapeHtml(String(uId));
+        document.getElementById('profileUsernameRow').innerText = escapeHtml(uName);
+
+        // Rolni chiroyli ko'rsatish
+        const roleEl = document.getElementById('profileRole');
+        roleEl.innerText = escapeHtml(uRole);
+        if(uRole.toLowerCase().includes('admin')) {
+            roleEl.className = "sm:col-span-2 text-xs sm:text-sm font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-lg px-2 py-0.5 inline-block w-fit uppercase tracking-wider";
+        }
+
+        // Vaqtni chiroyli formatda chiqarish
+        document.getElementById('profileCreatedAt').innerText = user.createdAt
+            ? new Date(user.createdAt).toLocaleString('uz-UZ')
+            : 'Mavjud emas';
+    }
+
+    // XSS hujumlaridan himoya qilish funksiyasi
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 </script>
 </body>

@@ -2,93 +2,99 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tizimga Kirish</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 flex items-center justify-center min-h-screen font-sans">
+<body class="bg-slate-50 flex flex-col items-center justify-center min-h-screen font-sans px-4 py-8">
 
-<div class="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-xl border border-slate-100 transition-all duration-300 hover:shadow-2xl">
+<div class="w-full max-w-md p-6 sm:p-8 space-y-6 bg-white rounded-2xl shadow-xl border border-slate-100 transition-all duration-300 hover:shadow-2xl">
 
     <div class="text-center">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-600 mb-4 shadow-sm">
-            <i class="fa-solid fa-shield-halved text-2xl"></i>
+        <div class="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-50 text-blue-600 mb-4 shadow-sm">
+            <i class="fa-solid fa-shield-halved text-xl sm:text-2xl"></i>
         </div>
-        <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Xush kelibsiz!</h2>
-        <p class="mt-2 text-sm text-slate-500">Davom etish uchun profilingizga kiring</p>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight">Xush kelibsiz!</h2>
+        <p class="mt-1.5 text-xs sm:text-sm text-slate-500">Davom etish uchun profilingizga kiring</p>
     </div>
 
-    <!-- Xatolik xabari -->
-    <div id="errorMessage" class="hidden p-4 text-sm text-red-700 bg-red-50 rounded-xl border border-red-100 flex items-center gap-2">
-        <i class="fa-solid fa-circle-exclamation"></i>
+    <div id="errorMessage" class="hidden p-3.5 text-xs sm:text-sm text-red-700 bg-red-50 rounded-xl border border-red-100 flex items-center gap-2 animate-pulse">
+        <i class="fa-solid fa-circle-exclamation shrink-0 text-red-500"></i>
         <span id="errorText">Login yoki parol xato!</span>
     </div>
 
-    <form id="loginForm" class="space-y-5">
+    <form id="loginForm" class="space-y-4 sm:space-y-5">
+
         <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">Foydalanuvchi nomi</label>
+            <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Foydalanuvchi nomi</label>
             <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                        <i class="fa-solid fa-user text-sm"></i>
-                    </span>
-                <input type="text" id="username" required
-                       class="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800 text-sm"
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                    <i class="fa-solid fa-user text-xs sm:text-sm"></i>
+                </span>
+                <input type="text" id="username" required autocomplete="username"
+                       class="w-full pl-10 pr-4 py-2.5 sm:py-3 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800 text-xs sm:text-sm"
                        placeholder="Masalan: admin123">
             </div>
         </div>
 
         <div>
-            <div class="flex justify-between items-center mb-2">
-                <label class="block text-sm font-semibold text-slate-700">Parol</label>
-                <a href="#" class="text-xs font-medium text-blue-600 hover:underline">Parolni unutdingizmi?</a>
+            <div class="flex justify-between items-center mb-1.5">
+                <label class="block text-xs sm:text-sm font-semibold text-slate-700">Parol</label>
+                <a href="#" class="text-[11px] sm:text-xs font-medium text-blue-600 hover:underline">Parolni unutdingizmi?</a>
             </div>
             <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                        <i class="fa-solid fa-lock text-sm"></i>
-                    </span>
-                <input type="password" id="password" required
-                       class="w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800 text-sm"
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                    <i class="fa-solid fa-lock text-xs sm:text-sm"></i>
+                </span>
+                <input type="password" id="password" required autocomplete="current-password"
+                       class="w-full pl-10 pr-12 py-2.5 sm:py-3 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-800 text-xs sm:text-sm"
                        placeholder="********">
-                <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600">
-                    <i id="passwordIcon" class="fa-solid fa-eye text-sm"></i>
+                <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 hover:text-slate-600 cursor-pointer">
+                    <i id="passwordIcon" class="fa-solid fa-eye text-xs sm:text-sm"></i>
                 </button>
             </div>
         </div>
 
         <button type="submit" id="submitBtn"
-                class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-md shadow-blue-200 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
-            <span>Kirish</span>
-            <i class="fa-solid fa-arrow-right text-xs"></i>
+                class="w-full py-2.5 sm:py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-md shadow-blue-100 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+            <span class="text-xs sm:text-sm">Kirish</span>
+            <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs"></i>
         </button>
     </form>
+
+    <div class="text-center text-xs sm:text-sm text-slate-500 pt-2 border-t border-slate-50">
+        Akkauntingiz yo'qmi? <a href="/register.html" class="text-blue-600 font-semibold hover:underline">Ro'yxatdan o'ting</a>
+    </div>
 </div>
 
 <script>
+    // Parolni ko'rsatish / yashirish logikasi
     function togglePassword() {
         const passwordInput = document.getElementById('password');
         const passwordIcon = document.getElementById('passwordIcon');
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
-            passwordIcon.className = 'fa-solid fa-eye-slash text-sm';
+            passwordIcon.className = 'fa-solid fa-eye-slash text-xs sm:text-sm';
         } else {
             passwordInput.type = 'password';
-            passwordIcon.className = 'fa-solid fa-eye text-sm';
+            passwordIcon.className = 'fa-solid fa-eye text-xs sm:text-sm';
         }
     }
 
-    // --- /api/auth/login so'rovi ---
+    // --- Spring Boot /api/auth/login API integratsiyasi ---
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        const usernameInput = document.getElementById('username').value;
+        const usernameInput = document.getElementById('username').value.trim();
         const passwordInput = document.getElementById('password').value;
         const submitBtn = document.getElementById('submitBtn');
         const errorMessage = document.getElementById('errorMessage');
         const errorText = document.getElementById('errorText');
 
+        // Tugmani bloklash (Loading holati)
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Kirilmoqda...`;
+        submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-xs sm:text-sm"></i> <span class="text-xs sm:text-sm">Kirilmoqda...</span>`;
         errorMessage.classList.add('hidden');
 
         const loginRequest = {
@@ -103,34 +109,37 @@
                 body: JSON.stringify(loginRequest)
             });
 
-            const data = await response.json(); // LoginResponse
+            // Agar server xatolik qaytarsa, lekin JSON bo'lsa uni o'qiymiz
+            let data = {};
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                data = await response.json();
+            }
 
             if (response.ok) {
-                // LoginResponse ichidan keladigan accessToken va refreshToken ni saqlaymiz
-                // (O'zgaruvchi nomlarini o'zingizning LoginResponse fieldlariga moslang)
-                localStorage.setItem('accessToken', data.accessToken);
-                localStorage.setItem('refreshToken', data.refreshToken);
-                localStorage.setItem('userId', data.userId);
-                localStorage.setItem('username', data.username);
-                localStorage.setItem('role', data.role);
+                // JWT Refresh token rotation va foydalanuvchi ma'lumotlarini brauzer xotirasiga yozamiz
+                if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
+                if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+                if (data.userId) localStorage.setItem('userId', data.userId);
+                if (data.username) localStorage.setItem('username', data.username);
+                if (data.role) localStorage.setItem('role', data.role);
 
-                // Tizim ichkarisiga yo'naltirish
+                // Muvaffaqiyatli kirgandan so'ng buyurtmalar boshqaruviga yo'naltirish
                 window.location.href = '/order.html';
             } else {
                 errorText.innerText = data.message || 'Login yoki parol xato!';
                 errorMessage.classList.remove('hidden');
             }
         } catch (error) {
-            errorText.innerText = 'Server bilan aloqa uzildi.';
+            console.error("Login xatoligi:", error);
+            errorText.innerText = 'Server bilan aloqa uzildi yoki tarmoq xatosi.';
             errorMessage.classList.remove('hidden');
         } finally {
+            // Tugmani dastlabki holatiga qaytarish
             submitBtn.disabled = false;
-            submitBtn.innerHTML = `<span>Kirish</span> <i class="fa-solid fa-arrow-right text-xs"></i>`;
+            submitBtn.innerHTML = `<span class="text-xs sm:text-sm">Kirish</span> <i class="fa-solid fa-arrow-right text-[10px] sm:text-xs"></i>`;
         }
     });
 </script>
-<div class="fixed bottom-6 left-0 right-0 text-center text-sm text-slate-500">
-    Akkauntingiz yo'qmi? <a href="/register.html" class="text-blue-600 font-semibold hover:underline">Ro'yxatdan o'ting</a>
-</div>
 </body>
 </html>

@@ -2,25 +2,29 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mahsulotlar - E-Commerce</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="/js/auth.js"></script>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans">
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased font-sans pb-20 sm:pb-0">
 
 <nav class="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <div class="flex items-center gap-2">
             <i class="fa-solid fa-bag-shopping text-blue-600 text-xl"></i>
             <span class="font-bold text-lg text-slate-800 tracking-tight">E-Store</span>
         </div>
 
-        <div class="flex items-center gap-6">
+        <div class="hidden md:flex items-center gap-6">
             <a href="/user.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
                 <i class="fa-solid fa-circle-user text-lg text-slate-400"></i>
                 <span>Profil</span>
+            </a>
+            <a href="/order.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                <i class="fa-solid fa-cart-shopping text-lg text-slate-400"></i>
+                <span>Buyurtma berish</span>
             </a>
             <a href="/my-orders.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
                 <i class="fa-solid fa-receipt text-lg text-slate-400"></i>
@@ -30,32 +34,55 @@
                 <i class="fa-solid fa-comments text-lg text-slate-400"></i>
                 <span>Chat</span>
             </a>
-            <a href="/order.html" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
-                <i class="fa-solid fa-cart-shopping text-lg text-slate-400"></i>
-                <span>Buyurtmalar</span>
-            </a>
-
             <button onclick="handleLogout()" class="px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer">
                 Chiqish
+            </button>
+        </div>
+
+        <div class="flex md:hidden items-center gap-3">
+            <a href="/chat.html" class="p-2 text-slate-600 hover:text-blue-600 relative">
+                <i class="fa-solid fa-comments text-xl"></i>
+            </a>
+            <button onclick="handleLogout()" class="p-2 text-red-600 cursor-pointer">
+                <i class="fa-solid fa-right-from-bracket text-lg"></i>
             </button>
         </div>
     </div>
 </nav>
 
-<div class="max-w-7xl mx-auto px-6 py-8">
+<div class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-slate-100 shadow-lg z-40 flex justify-around items-center h-16 pb-safe">
+    <a href="/product.html" class="flex flex-col items-center gap-0.5 text-blue-600">
+        <i class="fa-solid fa-box text-lg"></i>
+        <span class="text-[10px] font-bold">Do'kon</span>
+    </a>
+    <a href="/order.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-cart-shopping text-lg"></i>
+        <span class="text-[10px] font-medium">Savat</span>
+    </a>
+    <a href="/my-orders.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-receipt text-lg"></i>
+        <span class="text-[10px] font-medium">Buyurtmalar</span>
+    </a>
+    <a href="/user.html" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-blue-600">
+        <i class="fa-solid fa-circle-user text-lg"></i>
+        <span class="text-[10px] font-medium">Profil</span>
+    </a>
+</div>
 
-    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Barcha Mahsulotlar</h1>
-            <p class="text-slate-500 text-sm mt-0.5">Mahsulotlarni ko'ring va yangi mahsulot qo'shing.</p>
+            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Barcha Mahsulotlar</h1>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Mahsulotlarni ko'ring va yangi mahsulot qo'shing.</p>
         </div>
-        <button onclick="openProductModal()" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-sm cursor-pointer">
+        <button onclick="openProductModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-sm cursor-pointer transition-all active:scale-98">
             <i class="fa-solid fa-plus text-xs"></i>
-            Mahsulot qo'shish
+            <span>Mahsulot qo'shish</span>
         </button>
     </div>
 
-    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div id="productsGrid" class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:gap-6">
         <div class="col-span-full py-20 text-center text-slate-400">
             <i class="fa-solid fa-spinner animate-spin text-2xl mb-3 text-blue-500 block"></i>
             Mahsulotlar yuklanmoqda...
@@ -64,57 +91,69 @@
 
 </div>
 
-<div id="productModal" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-    <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-6">
-        <div class="flex items-center justify-between mb-5">
+<div id="productModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-300">
+    <div class="w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl p-5 sm:p-6 max-h-[92vh] overflow-y-auto flex flex-col">
+
+        <div class="flex items-center justify-between mb-4 sm:mb-5 shrink-0">
             <h2 class="text-lg font-bold text-slate-900">Yangi mahsulot</h2>
-            <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
-                <i class="fa-solid fa-xmark"></i>
+            <button onclick="closeProductModal()" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full cursor-pointer">
+                <i class="fa-solid fa-xmark text-base"></i>
             </button>
         </div>
 
-        <div id="productAlert" class="hidden mb-4 p-3 rounded-xl text-sm font-medium border"></div>
+        <div id="productAlert" class="hidden mb-4 p-3 rounded-xl text-sm font-medium border shrink-0"></div>
 
-        <form id="createProductForm" class="space-y-4">
+        <form id="createProductForm" class="space-y-4 flex-1">
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mahsulot nomi</label>
-                <input type="text" id="productName" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
+                <input type="text" id="productName" required autocomplete="off" class="w-full p-2.5 sm:p-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 transition-colors">
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Kategoriya</label>
-                <input type="text" id="productCategory" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
+                <input type="text" id="productCategory" required autocomplete="off" class="w-full p-2.5 sm:p-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 transition-colors">
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Narx ($)</label>
-                    <input type="number" id="productPrice" min="1" step="0.01" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
+                    <input type="number" id="productPrice" min="0.01" step="0.01" required class="w-full p-2.5 sm:p-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 transition-colors">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Ombor soni</label>
-                    <input type="number" id="productStock" min="1" step="1" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500">
+                    <input type="number" id="productStock" min="0" step="1" required class="w-full p-2.5 sm:p-3 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 transition-colors">
                 </div>
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mahsulot rasmi</label>
-                <input type="file" id="productImage" accept="image/*" required class="w-full p-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                <input type="file" id="productImage" accept="image/*" required class="w-full p-2 border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
             </div>
 
-            <div class="flex gap-2 pt-2">
-                <button type="button" onclick="closeProductModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm cursor-pointer">Bekor qilish</button>
-                <button type="submit" id="createProductBtn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm cursor-pointer">Saqlash</button>
+            <div class="flex gap-3 pt-3 pb-safe">
+                <button type="button" onclick="closeProductModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition-colors cursor-pointer">Bekor qilish</button>
+                <button type="submit" id="createProductBtn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm cursor-pointer">Saqlash</button>
             </div>
         </form>
     </div>
 </div>
 
 <script>
-    // Global o'zgaruvchi sifatida tokenni tekshirish uchun srazu e'lon qilamiz
     const jwtToken = localStorage.getItem('accessToken');
 
-    // Sahifa yuklanganda ishga tushadigan qism
+    // Secure Fetch yoki standart fetch uchun xavfsiz wrapper (Zaxira bilan)
+    async function safeFetch(url, options = {}) {
+        if (typeof secureFetch === 'function') {
+            return secureFetch(url, options);
+        }
+        const token = localStorage.getItem('accessToken');
+        options.headers = options.headers || {};
+        if (token) {
+            options.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return fetch(url, options);
+    }
+
+    // Sahifa yuklanganda avtorizatsiyani tekshirish
     document.addEventListener('DOMContentLoaded', () => {
-        // Agar token bo'lmasa login sahifasiga o'tib yuboramiz
         if (!jwtToken) {
             window.location.href = '/login.html';
             return;
@@ -122,21 +161,19 @@
         loadProducts();
     });
 
-    // Form topshirilganda (Yangi mahsulot saqlanganda)
+    // Form topshirilganda (Yangi mahsulot saqlash logikasi)
     document.getElementById('createProductForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const alertBox = document.getElementById('productAlert');
         const submitBtn = document.getElementById('createProductBtn');
 
-        // FormData ob'ektini yaratish (Rasm yuborish uchun)
         const formData = new FormData();
         formData.append('name', document.getElementById('productName').value.trim());
         formData.append('category', document.getElementById('productCategory').value.trim());
         formData.append('price', document.getElementById('productPrice').value);
         formData.append('stock', document.getElementById('productStock').value);
 
-        // Rasmni olib biriktiramiz
         const imageFile = document.getElementById('productImage').files[0];
         if (imageFile) {
             formData.append('image', imageFile);
@@ -147,8 +184,7 @@
         alertBox.classList.add('hidden');
 
         try {
-            // auth.js ichidagi to'g'rilangan secureFetch wrapperidan foydalanamiz
-            const response = await secureFetch('/api/products', {
+            const response = await safeFetch('/api/products', {
                 method: 'POST',
                 body: formData
             });
@@ -158,7 +194,6 @@
                 throw new Error(error.message || "Mahsulotni qo'shib bo'lmadi.");
             }
 
-            // Tozalash va oynani yopish
             document.getElementById('createProductForm').reset();
             closeProductModal();
             loadProducts();
@@ -172,30 +207,29 @@
         }
     });
 
-    // Serverdan barcha mahsulotlarni tortish funksiyasi
+    // Serverdan barcha mahsulotlarni yuklash funksiyasi
     async function loadProducts() {
         const grid = document.getElementById('productsGrid');
         try {
-            const response = await secureFetch('/api/products');
+            const response = await safeFetch('/api/products');
 
             if (response && response.ok) {
                 const page = await response.json();
-                // Spring Boot Pagination ishlatsa, ro'yxat page.content ichida keladi
+                // Agar Pageable (Pagination) ishlatilgan bo'lsa content'ni, aks holda massivning o'zini yuboramiz
                 renderProducts(page.content || page);
             } else {
-                grid.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400">Hozircha mahsulotlar mavjud emas.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-16 text-center text-slate-400 text-sm">Hozircha mahsulotlar mavjud emas.</div>`;
             }
         } catch (error) {
-            grid.innerHTML = `<div class="col-span-full py-10 text-center text-red-500">Mahsulotlarni yuklashda xatolik yuz berdi.</div>`;
+            grid.innerHTML = `<div class="col-span-full py-16 text-center text-red-500 text-sm">Mahsulotlarni yuklashda xatolik yuz berdi.</div>`;
         }
     }
 
-
-    // Mahsulotlarni kartochka ko'rinishida chizish (Yaxshilangan va chiroyli variant)
+    // Mahsulotlar kartasini ekranga dinamik chizish
     function renderProducts(products) {
         const grid = document.getElementById('productsGrid');
         if (!products || products.length === 0) {
-            grid.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400">Hozircha do'konda mahsulot yo'q.</div>`;
+            grid.innerHTML = `<div class="col-span-full py-16 text-center text-slate-400 text-sm">Hozircha do'konda mahsulot yo'q.</div>`;
             return;
         }
 
@@ -203,48 +237,50 @@
             const imageSrc = product.imageUrl ? product.imageUrl : null;
 
             return `
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group">
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md sm:hover:-translate-y-0.5 transition-all duration-300 group">
 
-                    <div class="h-56 bg-white p-4 flex items-center justify-center relative overflow-hidden border-b border-slate-50">
+                    <div class="h-44 sm:h-52 bg-white p-3 flex items-center justify-center relative overflow-hidden border-b border-slate-50 shrink-0">
                         ${imageSrc ?
                 `<img src="${imageSrc}"
-                                  alt="${product.name}"
-                                  class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                                  alt="${escapeHtml(product.name)}"
+                                  class="max-w-full max-h-full object-contain group-hover:scale-103 transition-transform duration-300"
                                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
                              <div class="hidden text-center text-slate-300">
-                                 <i class="fa-solid fa-image text-4xl mb-1 block"></i>
-                                 <span class="text-xs">Rasm yuklanmadi</span>
+                                 <i class="fa-solid fa-image text-3xl mb-1 block"></i>
+                                 <span class="text-[10px]">Rasm xatosi</span>
                              </div>` :
                 `<div class="text-center text-slate-300">
-                                 <i class="fa-solid fa-box-open text-4xl mb-1 block"></i>
-                                 <span class="text-xs text-slate-400">Rasm yo'q</span>
+                                 <i class="fa-solid fa-box-open text-3xl mb-1 block"></i>
+                                 <span class="text-[10px] text-slate-400">Rasm yo'q</span>
                              </div>`
             }
 
-                        <span class="absolute top-3 left-3 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
-                            ${product.category || 'Sport'}
+                        <span class="absolute top-2 left-2 bg-slate-100 text-slate-600 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
+                            ${escapeHtml(product.category || 'Kategoriya')}
                         </span>
                     </div>
 
-                    <div class="p-5 flex flex-col flex-1 bg-white">
-                        <h3 class="font-bold text-slate-800 text-base line-clamp-1 group-hover:text-blue-600 transition-colors">
-                            ${product.name}
-                        </h3>
+                    <div class="p-4 flex flex-col flex-1 justify-between bg-white">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm sm:text-base line-clamp-1 group-hover:text-blue-600 transition-colors">
+                                ${escapeHtml(product.name)}
+                            </h3>
 
-                        <div class="flex items-center gap-1.5 mt-1.5 text-xs text-slate-400 font-medium">
-                            <i class="fa-solid fa-warehouse text-[10px]"></i>
-                            <span>Omborda: <strong class="text-slate-600">${product.stock ?? 0} ta</strong></span>
+                            <div class="flex items-center gap-1.5 mt-1 text-[11px] sm:text-xs text-slate-400 font-medium">
+                                <i class="fa-solid fa-warehouse text-[9px]"></i>
+                                <span>Omborda: <strong class="text-slate-600">${product.stock ?? 0} ta</strong></span>
+                            </div>
                         </div>
 
-                        <div class="mt-5 pt-3 border-t border-slate-50 flex items-center justify-between">
-                            <div class="flex flex-col">
-                                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Narxi</span>
-                                <span class="text-xl font-black text-slate-900 tracking-tight">$${product.price}</span>
+                        <div class="mt-4 pt-2.5 border-t border-slate-50 flex items-center justify-between gap-2">
+                            <div class="flex flex-col shrink-0">
+                                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-tight">Narxi</span>
+                                <span class="text-base sm:text-lg font-black text-slate-900 tracking-tight">$${product.price}</span>
                             </div>
 
-                            <a href="/order.html" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-blue-100 hover:shadow-md cursor-pointer">
+                            <a href="/order.html" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-blue-100 cursor-pointer">
                                 <span>Sotib olish</span>
-                                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                <i class="fa-solid fa-arrow-right text-[9px]"></i>
                             </a>
                         </div>
                     </div>
@@ -259,10 +295,15 @@
         document.getElementById('productModal').classList.remove('hidden');
     }
 
-    // Modal oynasini yopish
     function closeProductModal() {
         document.getElementById('productModal').classList.add('hidden');
         document.getElementById('productAlert').classList.add('hidden');
+    }
+
+    // XSS xavfsizligi uchun yordamchi funksiya
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 </script>
 </body>

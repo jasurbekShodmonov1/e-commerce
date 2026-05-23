@@ -72,7 +72,8 @@ public class ProductServiceTest {
             name,
             price,
             stock,
-            category
+            category,
+            mockImage
     );
 
 

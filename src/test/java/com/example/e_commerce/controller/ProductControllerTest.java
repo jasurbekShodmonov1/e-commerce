@@ -5,11 +5,14 @@ import com.example.e_commerce.dto.request.ProductRequest;
 import com.example.e_commerce.repository.OrderItemRepository;
 import com.example.e_commerce.repository.OrderRepository;
 import com.example.e_commerce.repository.ProductRepository;
+import com.example.e_commerce.service.FileStorageService;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
@@ -17,6 +20,8 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class ProductControllerTest extends ECommerceApplicationTests {
 
@@ -29,6 +34,9 @@ public class ProductControllerTest extends ECommerceApplicationTests {
 	@Autowired
 	private OrderRepository orderRepository;
 
+	@MockitoBean
+	private FileStorageService fileStorageService;
+
 	private final String name = "Apple";
 	private final BigDecimal price = new BigDecimal("100");
 	private final Integer stock = 100;
@@ -39,6 +47,7 @@ public class ProductControllerTest extends ECommerceApplicationTests {
 		orderItemRepository.deleteAll();
 		orderRepository.deleteAll();
 		productRepository.deleteAll();
+		when(fileStorageService.uploadFile(any(MultipartFile.class))).thenReturn("test-image.png");
 	}
 
 	@Test
@@ -82,8 +91,11 @@ public class ProductControllerTest extends ECommerceApplicationTests {
 	@Test
 	void createProduct_ShouldWorkForAuthenticatedUser() {
 		given(userSpecification)
-				.contentType(ContentType.JSON)
-				.body(createProductRequest())
+				.multiPart("name", name)
+				.multiPart("price", price.toString())
+				.multiPart("stock", stock.toString())
+				.multiPart("category", category)
+				.multiPart("image", "test-image.png", "rasm_baytlari".getBytes(), "image/png")
 				.when()
 				.post("/api/products")
 				.then()
@@ -137,12 +149,16 @@ public class ProductControllerTest extends ECommerceApplicationTests {
 				"Updated Apple",
 				new BigDecimal("150"),
 				50,
-				"Updated Fruit"
+				"Updated Fruit",
+				null
 		);
 
 		given(userSpecification)
-				.contentType(ContentType.JSON)
-				.body(updateRequest)
+				.multiPart("name", updateRequest.name())
+				.multiPart("price", updateRequest.price().toString())
+				.multiPart("stock", updateRequest.stock().toString())
+				.multiPart("category", updateRequest.category())
+				.multiPart("image", "updated-image.png", "rasm_baytlari".getBytes(), "image/png")
 				.when()
 				.put("/api/products/{productId}", savedProductId)
 				.then()
@@ -184,13 +200,16 @@ public class ProductControllerTest extends ECommerceApplicationTests {
 	}
 
 	private ProductRequest createProductRequest() {
-		return new ProductRequest(name, price, stock, category);
+		return new ProductRequest(name, price, stock, category, null);
 	}
 
 	private Long createProduct(io.restassured.specification.RequestSpecification specification) {
 		Number productId = given(specification)
-				.contentType(ContentType.JSON)
-				.body(createProductRequest())
+				.multiPart("name", name)
+				.multiPart("price", price.toString())
+				.multiPart("stock", stock.toString())
+				.multiPart("category", category)
+				.multiPart("image", "test-image.png", "rasm_baytlari".getBytes(), "image/png")
 				.when()
 				.post("/api/products")
 				.then()

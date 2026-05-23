@@ -175,9 +175,14 @@
         formData.append('stock', document.getElementById('productStock').value);
 
         const imageFile = document.getElementById('productImage').files[0];
-        if (imageFile) {
-            formData.append('image', imageFile);
+        const imageValidationError = validateSelectedImage(imageFile);
+        if (imageValidationError) {
+            alertBox.className = 'mb-4 p-3 rounded-xl text-sm font-medium border bg-red-50 text-red-700 border-red-100';
+            alertBox.textContent = imageValidationError;
+            alertBox.classList.remove('hidden');
+            return;
         }
+        formData.append('image', imageFile);
 
         submitBtn.disabled = true;
         submitBtn.innerText = 'Saqlanmoqda...';
@@ -199,7 +204,7 @@
             loadProducts();
         } catch (error) {
             alertBox.className = 'mb-4 p-3 rounded-xl text-sm font-medium border bg-red-50 text-red-700 border-red-100';
-            alertBox.innerText = error.message;
+            alertBox.textContent = error.message;
             alertBox.classList.remove('hidden');
         } finally {
             submitBtn.disabled = false;
@@ -234,15 +239,21 @@
         }
 
         grid.innerHTML = products.map(product => {
-            const imageSrc = product.imageUrl ? product.imageUrl : null;
+            const imageSrc = getSafeImageUrl(product.imageUrl);
+            const productName = escapeHtml(product.name || 'Nomsiz mahsulot');
+            const productCategory = escapeHtml(product.category || 'Kategoriya');
+            const productPrice = escapeHtml(formatPrice(product.price));
+            const productStock = escapeHtml(formatStock(product.stock));
 
             return `
                 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md sm:hover:-translate-y-0.5 transition-all duration-300 group">
 
                     <div class="h-44 sm:h-52 bg-white p-3 flex items-center justify-center relative overflow-hidden border-b border-slate-50 shrink-0">
                         ${imageSrc ?
-                `<img src="${imageSrc}"
-                                  alt="${escapeHtml(product.name)}"
+                `<img src="${escapeHtml(imageSrc)}"
+                                  alt="${productName}"
+                                  loading="lazy"
+                                  referrerpolicy="no-referrer"
                                   class="max-w-full max-h-full object-contain group-hover:scale-103 transition-transform duration-300"
                                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
                              <div class="hidden text-center text-slate-300">
@@ -256,26 +267,26 @@
             }
 
                         <span class="absolute top-2 left-2 bg-slate-100 text-slate-600 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
-                            ${escapeHtml(product.category || 'Kategoriya')}
+                            ${productCategory}
                         </span>
                     </div>
 
                     <div class="p-4 flex flex-col flex-1 justify-between bg-white">
                         <div>
                             <h3 class="font-bold text-slate-800 text-sm sm:text-base line-clamp-1 group-hover:text-blue-600 transition-colors">
-                                ${escapeHtml(product.name)}
+                                ${productName}
                             </h3>
 
                             <div class="flex items-center gap-1.5 mt-1 text-[11px] sm:text-xs text-slate-400 font-medium">
                                 <i class="fa-solid fa-warehouse text-[9px]"></i>
-                                <span>Omborda: <strong class="text-slate-600">${product.stock ?? 0} ta</strong></span>
+                                <span>Omborda: <strong class="text-slate-600">${productStock} ta</strong></span>
                             </div>
                         </div>
 
                         <div class="mt-4 pt-2.5 border-t border-slate-50 flex items-center justify-between gap-2">
                             <div class="flex flex-col shrink-0">
                                 <span class="text-[9px] text-slate-400 font-bold uppercase tracking-tight">Narxi</span>
-                                <span class="text-base sm:text-lg font-black text-slate-900 tracking-tight">$${product.price}</span>
+                                <span class="text-base sm:text-lg font-black text-slate-900 tracking-tight">$${productPrice}</span>
                             </div>
 
                             <a href="/order.html" class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-blue-100 cursor-pointer">
@@ -302,8 +313,60 @@
 
     // XSS xavfsizligi uchun yordamchi funksiya
     function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        if (str === null || str === undefined) return '';
+        return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function getSafeImageUrl(url) {
+        if (!url || typeof url !== 'string') return null;
+
+        // 1. Agar rasm manzili to'g'ridan-to'g'ri / yoki http bilan boshlansa
+        if (url.startsWith('/') || url.startsWith('http://') || url.startsWith('https://')) {
+
+            // Agar rasmda "localhost" qolib ketgan bo'lsa va telefonda ochilayotgan bo'lsa,
+            // uni joriy kirilgan IP manzilga moslab yuboramiz
+            if (url.includes('localhost') && !window.location.hostname.includes('localhost')) {
+                return url.replace('localhost', window.location.hostname);
+            }
+
+            return url;
+        }
+
+        // 2. Aks holda URL obyekti orqali xavfsiz tekshiramiz
+        try {
+            const parsedUrl = new URL(url, window.location.origin);
+            return parsedUrl.href;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function formatPrice(value) {
+        const numberValue = Number(value);
+        if (!Number.isFinite(numberValue) || numberValue < 0) return '0.00';
+        return numberValue.toFixed(2);
+    }
+
+    function formatStock(value) {
+        const numberValue = Number(value);
+        if (!Number.isSafeInteger(numberValue) || numberValue < 0) return '0';
+        return String(numberValue);
+    }
+
+    function validateSelectedImage(file) {
+        if (!file) return 'Mahsulot rasmi majburiy.';
+
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            return 'Faqat JPG, PNG, WEBP yoki GIF rasm yuklash mumkin.';
+        }
+
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            return 'Rasm hajmi 5 MB dan oshmasligi kerak.';
+        }
+
+        return null;
     }
 </script>
 </body>
